@@ -571,14 +571,7 @@
     icone: "factory",
     url: "dashboard/index.html?empresa=aladim"
   },
-  {
-    nome: "Magma",
-    inicio: "15/07/2026",
-    colaboradores: 18,
-    icone: "building",
-    url: "dashboard/index.html?empresa=magma"
-  },
-  {
+    {
     nome: "Desing Brilhos",
     inicio: "20/07/2026",
     colaboradores: 100,
@@ -623,16 +616,16 @@
           </div>
 
           <a class="open ${ativo ? "" : "disabled"}"
-             href="${ativo ? empresa.url : "#"}"
-             target="_blank"
-             rel="noopener noreferrer">
-            <span>${ativo ? "Abrir" : "Aguardando link"}</span>
-            ${ICONS.arrow}
-          </a>
+   href="${ativo ? empresa.url : "#"}"
+   data-url="${empresa.url}"
+   data-portal-login="true">
+    <span>${ativo ? "Abrir" : "Aguardando link"}</span>
+    ${ICONS.arrow}
+</a>
         </article>
       `;
     }).join("");
   </script>
-</body>
   <script src="dashboard/js/login.js"></script>
+</body>
 </html>
