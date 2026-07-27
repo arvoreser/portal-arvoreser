@@ -25,10 +25,11 @@ async function iniciarLogin() {
 
         empresas.querySelectorAll("[data-portal-login='true']").forEach(botao => {
 
-            botao.addEventListener("click", () => {
+            botao.addEventListener("click", (evento) => {
+    evento.preventDefault();
 
-                window.__empresaDestino = botao.dataset.url;
-                exibirLogin();
+    window.__empresaDestino = botao.dataset.url;
+    exibirLogin();
 
             });
 
