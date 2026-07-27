@@ -2750,23 +2750,23 @@ canvas{color:#111827!important;}
 }
 
 .login-logo {
-  width: 105px;
-  height: 105px;
+  width: 80px;
+  height: 80px;
   object-fit: contain;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 }
 
 .login-brand h2 {
   margin: 0;
   color: #064001;
-  font-size: 34px;
-  font-weight: 600;
+  font-size: 30px;
+  font-weight: 700;
 }
 
 .login-subtitle {
-  margin: 4px 0 28px;
+  margin: 2px 0 20px;
   color: #6c746e;
-  font-size: 16px;
+  font-size: 15px;
 }
 
 .login-field {
