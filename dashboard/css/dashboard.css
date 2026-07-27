@@ -2852,14 +2852,17 @@ canvas{color:#111827!important;}
 }
 
 .login-message {
-  display: none;
-  margin: 16px 0 0;
+  min-height: 20px;
+  margin: 12px 0 0;
   color: #c62828;
   font-size: 14px;
+  line-height: 20px;
+  text-align: center;
+  visibility: hidden;
 }
 
 .login-message.visible {
-  display: block;
+  visibility: visible;
 }
 .login-shake {
   animation: loginShake 0.18s linear;
