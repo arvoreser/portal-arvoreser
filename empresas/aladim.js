@@ -1,5 +1,5 @@
 window.EMPRESA_CONFIG = {
   "id": "aladim",
   "nome": "Aladim Brindes",
-  "appsScriptUrl": "https://script.google.com/macros/s/AKfycbxmM68FZaX3TqpJJDxYOiPrs0go6sK2SnD8VWp1NQ_HR4NeGY5y5pwJYKJWk2ackJbC/exec"
+  "appsScriptUrl": "https://script.google.com/macros/s/AKfycbx8UiRLT7tQsrBMbUKa8TfaknULkP4SssrpyBJMB5FV_qjwSuYKDI9lfA6pqKe8rzSg/exec"
 };
