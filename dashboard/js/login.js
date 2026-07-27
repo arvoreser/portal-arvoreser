@@ -228,7 +228,7 @@ liberarDashboard({
       erro && erro.message
         ? erro.message
         : "Não foi possível acessar o Portal."
-    );s
+    );
   } finally {
     desativarCarregamentoLogin();
   }
