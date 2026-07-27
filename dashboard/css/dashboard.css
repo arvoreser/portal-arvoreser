@@ -2821,7 +2821,7 @@ canvas{color:#111827!important;}
   display: block;
 }
 .login-shake {
-  animation: loginShake 0.35s ease;
+  animation: loginShake 0.18s linear;
 }
 
 @keyframes loginShake {
@@ -2829,15 +2829,19 @@ canvas{color:#111827!important;}
     transform: translateX(0);
   }
 
-  25% {
-    transform: translateX(-8px);
+  20% {
+    transform: translateX(-7px);
   }
 
-  50% {
-    transform: translateX(8px);
+  40% {
+    transform: translateX(7px);
   }
 
-  75% {
+  60% {
     transform: translateX(-5px);
+  }
+
+  80% {
+    transform: translateX(5px);
   }
 }
