@@ -2913,3 +2913,39 @@ canvas{color:#111827!important;}
     justify-content:center;
     min-width:90px;
 }
+.voltar-portal{
+    position: fixed;
+    top: 22px;
+    left: 22px;
+
+    display: inline-flex;
+    align-items: center;
+    gap:8px;
+
+    padding:12px 18px;
+
+    background:#ffffff;
+    color:#064001;
+
+    border:1px solid rgba(6,64,1,.12);
+    border-radius:999px;
+
+    text-decoration:none;
+    font-weight:700;
+    font-size:14px;
+
+    box-shadow:
+        0 10px 30px rgba(6,64,1,.10),
+        0 2px 8px rgba(6,64,1,.08);
+
+    transition:.25s;
+    z-index:9999;
+}
+
+.voltar-portal:hover{
+    transform:translateY(-2px);
+    color:#064001;
+    box-shadow:
+        0 18px 40px rgba(6,64,1,.18),
+        0 8px 18px rgba(6,64,1,.12);
+}
