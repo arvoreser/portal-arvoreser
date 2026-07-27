@@ -2741,8 +2741,8 @@ canvas{color:#111827!important;}
 }
 
 .login-card {
-  width: min(420px, 100%);
-  padding: 36px 34px 32px;
+  width: min(390px, 100%);
+  padding: 30px 30px 28px;
   border-radius: 26px;
   background: #ffffff;
   box-shadow: 0 26px 70px rgba(6, 64, 1, 0.25);
