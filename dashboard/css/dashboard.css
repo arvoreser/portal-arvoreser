@@ -2750,10 +2750,10 @@ canvas{color:#111827!important;}
 }
 
 .login-logo {
-  width: 90px;
-  height: 90px;
+  width: 100px;
+  height: 100px;
   object-fit: contain;
-  margin-bottom: 2px;
+  margin-bottom: 3px;
 }
 
 .login-brand h2 {
@@ -2819,4 +2819,25 @@ canvas{color:#111827!important;}
 
 .login-message.visible {
   display: block;
+}
+.login-shake {
+  animation: loginShake 0.35s ease;
+}
+
+@keyframes loginShake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-8px);
+  }
+
+  50% {
+    transform: translateX(8px);
+  }
+
+  75% {
+    transform: translateX(-5px);
+  }
 }
