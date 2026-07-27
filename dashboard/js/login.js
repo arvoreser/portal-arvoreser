@@ -81,7 +81,7 @@ function criarJanelaLogin() {
       aria-labelledby="loginTitulo"
     >
       <img
-        src="../logo-arvoreser.png"
+        src="/portal-arvoreser/logo-arvoreser.png"
         class="login-logo"
         alt="ArvoreSer Saúde Corporativa"
       >
