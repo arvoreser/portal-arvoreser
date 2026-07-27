@@ -2750,10 +2750,10 @@ canvas{color:#111827!important;}
 }
 
 .login-logo {
-  width: 80px;
-  height: 80px;
+  width: 90px;
+  height: 90px;
   object-fit: contain;
-  margin-bottom: 6px;
+  margin-bottom: 2px;
 }
 
 .login-brand h2 {
@@ -2790,6 +2790,11 @@ canvas{color:#111827!important;}
   border-radius: 13px;
   outline: none;
   font-size: 16px;
+  transition: all .20s ease;
+}
+.login-field input:focus {
+  border-color: #17FA03;
+  box-shadow: 0 0 0 4px rgba(23, 250, 3, 0.18);
 }
 
 #btnEntrar {
