@@ -1,5 +1,4 @@
-// Módulo complementar: evolução do estresse após 1 mês
-// É carregado depois de evolucao-dor.js e acrescenta o bloco abaixo do sono.
+// Módulo: evolução do estresse após 1 mês
 
 (function(){
   let evolucaoEstresseChart = null;
@@ -14,13 +13,12 @@
 
   function mapearEstresse(valor){
     const mapa = {
-      'muito baixo': 1,
-      'baixo': 2,
-      'moderado': 3,
-      'medio': 3,
-      'médio': 3,
-      'alto': 4,
-      'muito alto': 5
+      'muito baixo':1,
+      'baixo':2,
+      'moderado':3,
+      'medio':3,
+      'alto':4,
+      'muito alto':5
     };
     const v = normalizarTexto(valor);
     return Object.prototype.hasOwnProperty.call(mapa, v) ? mapa[v] : null;
@@ -29,8 +27,8 @@
   function obterComparativoEstresse1Mes(){
     const iniciais = Array.isArray(DATA.records) ? DATA.records : [];
     const reavaliacoes = Array.isArray(DATA.reavaliacao1MesRows) ? DATA.reavaliacao1MesRows : [];
-
     const reavPorId = new Map();
+
     reavaliacoes.forEach(row => {
       const id = String(row.ID ?? '').trim();
       if(id) reavPorId.set(id, row);
@@ -42,16 +40,11 @@
       const reav = reavPorId.get(id);
       if(!reav) return;
 
-      const estresseInicial = mapearEstresse(inicial.estresse);
-      const estresse1Mes = mapearEstresse(reav['Estresse']);
-      if(estresseInicial === null || estresse1Mes === null) return;
+      const a = mapearEstresse(inicial.estresse);
+      const b = mapearEstresse(reav['Estresse']);
+      if(a === null || b === null) return;
 
-      pares.push({
-        id,
-        nome: inicial.nome,
-        inicial: estresseInicial,
-        mes1: estresse1Mes
-      });
+      pares.push({ id, nome: inicial.nome, inicial:a, mes1:b });
     });
 
     return {
@@ -64,7 +57,6 @@
 
   function garantirEstilos(){
     if(document.getElementById('evolucaoEstresseStyles')) return;
-
     const style = document.createElement('style');
     style.id = 'evolucaoEstresseStyles';
     style.textContent = `
@@ -112,111 +104,55 @@
       <div id="evolucaoEstresseNota" class="evolucao-estresse-nota"></div>
       <div id="evolucaoEstresseRodape" class="evolucao-estresse-rodape"></div>
     `;
-
     sono.insertAdjacentElement('afterend', bloco);
     return bloco;
   }
 
-  function renderEvolucaoEstresse1Mes(){
+  window.renderEvolucaoEstresse1Mes = function(){
     const bloco = garantirBloco();
     if(!bloco) return;
-
     garantirEstilos();
 
-    const comparativo = obterComparativoEstresse1Mes();
+    const c = obterComparativoEstresse1Mes();
     const cobertura = document.getElementById('evolucaoEstresseCobertura');
     const status = document.getElementById('evolucaoEstresseStatus');
     const nota = document.getElementById('evolucaoEstresseNota');
     const rodape = document.getElementById('evolucaoEstresseRodape');
 
-    cobertura.textContent = `Reavaliados: ${comparativo.totalReavaliados} de ${comparativo.totalColaboradores}`;
+    cobertura.textContent = `Reavaliados: ${c.totalReavaliados} de ${c.totalColaboradores}`;
 
-    if(!comparativo.totalComparaveis){
+    if(!c.totalComparaveis){
       status.innerHTML = '';
       nota.textContent = 'Ainda não há registros suficientes para comparar a evolução do estresse.';
       rodape.textContent = '';
-      if(evolucaoEstresseChart){
-        evolucaoEstresseChart.destroy();
-        evolucaoEstresseChart = null;
-      }
+      if(evolucaoEstresseChart){ evolucaoEstresseChart.destroy(); evolucaoEstresseChart = null; }
       return;
     }
 
-    const reduziram = comparativo.pares.filter(p => p.mes1 < p.inicial);
-    const mantiveram = comparativo.pares.filter(p => p.mes1 === p.inicial);
-    const aumentaram = comparativo.pares.filter(p => p.mes1 > p.inicial);
+    const reduziram = c.pares.filter(p => p.mes1 < p.inicial);
+    const mantiveram = c.pares.filter(p => p.mes1 === p.inicial);
+    const aumentaram = c.pares.filter(p => p.mes1 > p.inicial);
 
     status.innerHTML = `
-      <div class="evolucao-estresse-card reduziram">
-        <span class="numero">${reduziram.length}</span>
-        <span class="rotulo">Reduziram o nível de estresse</span>
-      </div>
-      <div class="evolucao-estresse-card mantiveram">
-        <span class="numero">${mantiveram.length}</span>
-        <span class="rotulo">Mantiveram a mesma classificação</span>
-      </div>
-      <div class="evolucao-estresse-card aumentaram">
-        <span class="numero">${aumentaram.length}</span>
-        <span class="rotulo">Aumentaram o nível de estresse</span>
-      </div>
+      <div class="evolucao-estresse-card reduziram"><span class="numero">${reduziram.length}</span><span class="rotulo">Reduziram o nível de estresse</span></div>
+      <div class="evolucao-estresse-card mantiveram"><span class="numero">${mantiveram.length}</span><span class="rotulo">Mantiveram a mesma classificação</span></div>
+      <div class="evolucao-estresse-card aumentaram"><span class="numero">${aumentaram.length}</span><span class="rotulo">Aumentaram o nível de estresse</span></div>
     `;
 
-    const categorias = [
-      {nota:1,label:'Muito baixo'},
-      {nota:2,label:'Baixo'},
-      {nota:3,label:'Moderado'},
-      {nota:4,label:'Alto'},
-      {nota:5,label:'Muito alto'}
-    ];
+    const categorias=[{nota:1,label:'Muito baixo'},{nota:2,label:'Baixo'},{nota:3,label:'Moderado'},{nota:4,label:'Alto'},{nota:5,label:'Muito alto'}];
+    const contar=(campo,n)=>c.pares.filter(p=>p[campo]===n).length;
 
-    const contar = (campo, valor) => comparativo.pares.filter(p => p[campo] === valor).length;
-
-    nota.textContent = `${comparativo.totalComparaveis} dos ${comparativo.totalReavaliados} reavaliados possuem classificação de estresse comparável nos dois momentos.`;
+    nota.textContent = `${c.totalComparaveis} dos ${c.totalReavaliados} reavaliados possuem classificação de estresse comparável nos dois momentos.`;
     rodape.textContent = 'O estresse é um indicador autorreferido e pode variar conforme demandas pessoais e profissionais. A leitura mostra tendência de redução, manutenção ou aumento e deve ser interpretada em conjunto com os demais indicadores do acompanhamento.';
 
     if(evolucaoEstresseChart) evolucaoEstresseChart.destroy();
-
     evolucaoEstresseChart = new Chart(document.getElementById('evolucaoEstresseChart'), {
       type:'bar',
-      data:{
-        labels:categorias.map(c => c.label),
-        datasets:[
-          {
-            label:'Avaliação inicial',
-            data:categorias.map(c => contar('inicial', c.nota)),
-            backgroundColor:'rgba(253,49,5,.28)',
-            borderColor:'#fd3105',
-            borderWidth:1,
-            borderRadius:5
-          },
-          {
-            label:'1 mês',
-            data:categorias.map(c => contar('mes1', c.nota)),
-            backgroundColor:'rgba(23,250,3,.25)',
-            borderColor:'#187900',
-            borderWidth:1,
-            borderRadius:5
-          }
-        ]
-      },
-      options:{
-        responsive:true,
-        maintainAspectRatio:false,
-        plugins:{
-          legend:{position:'top'},
-          tooltip:{callbacks:{label:(ctx)=>`${ctx.dataset.label}: ${ctx.raw} colaborador(es)`}}
-        },
-        scales:{
-          y:{beginAtZero:true,ticks:{precision:0}},
-          x:{grid:{display:false}}
-        }
-      }
+      data:{labels:categorias.map(c=>c.label),datasets:[
+        {label:'Avaliação inicial',data:categorias.map(c=>contar('inicial',c.nota)),backgroundColor:'rgba(253,49,5,.28)',borderColor:'#fd3105',borderWidth:1,borderRadius:5},
+        {label:'1 mês',data:categorias.map(c=>contar('mes1',c.nota)),backgroundColor:'rgba(23,250,3,.25)',borderColor:'#187900',borderWidth:1,borderRadius:5}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'},tooltip:{callbacks:{label:(ctx)=>`${ctx.dataset.label}: ${ctx.raw} colaborador(es)`}}},scales:{y:{beginAtZero:true,ticks:{precision:0}},x:{grid:{display:false}}}}
     });
-  }
-
-  const renderDorOriginal = window.renderEvolucaoDor1Mes;
-  window.renderEvolucaoDor1Mes = function(){
-    renderDorOriginal();
-    renderEvolucaoEstresse1Mes();
   };
 })();
