@@ -46,6 +46,7 @@ async function carregarModulosEvolucao() {
   await carregarScriptModulo('js/modules/evolucao-estresse.js?v=20260817-2258','data-modulo','evolucao-estresse');
   await carregarScriptModulo('js/modules/evolucao-interferencia.js?v=20260817-2304','data-modulo','evolucao-interferencia');
   await carregarScriptModulo('js/modules/evolucao-gl.js?v=20260817-2328','data-modulo','evolucao-gl');
+  await carregarScriptModulo('js/modules/setor-reavaliacao.js?v=20260817-2342','data-modulo','setor-reavaliacao');
 }
 
 async function init() {
@@ -62,6 +63,7 @@ async function init() {
   renderList();
   renderPerson();
   renderCharts();
+  if(typeof window.ativarCliqueReavaliacaoSetor === 'function') window.ativarCliqueReavaliacaoSetor();
 
   if(typeof window.renderEvolucaoRegioes1Mes === 'function') window.renderEvolucaoRegioes1Mes();
   if(typeof window.renderEvolucaoEstresse1Mes === 'function') window.renderEvolucaoEstresse1Mes();
