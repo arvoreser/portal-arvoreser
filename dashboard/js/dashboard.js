@@ -11,7 +11,7 @@ function carregarModuloEvolucaoDor() {
     }
 
     const script = document.createElement('script');
-    script.src = 'js/modules/evolucao-dor.js?v=20260818-1';
+    script.src = 'js/modules/evolucao-dor.js?v=20260817-2234';
     script.dataset.modulo = 'evolucao-dor';
     script.onload = () => {
       script.dataset.carregado = 'true';
