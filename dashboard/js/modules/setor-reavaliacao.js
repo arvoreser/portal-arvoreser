@@ -10,9 +10,10 @@
   function contarRegioesReav(items){ const mapa={}; items.forEach(r=>{ if(!temDor(r['Resposta original sobre dor']))return; texto(r['Região da dor']).split(/[,;|\/]+/).map(x=>x.trim()).filter(Boolean).forEach(reg=>{mapa[reg]=(mapa[reg]||0)+1;}); }); return Object.entries(mapa).sort((a,b)=>b[1]-a[1]); }
   function contarRegioesInicial(items){ const mapa={}; items.forEach(r=>{ if(!temDor(r.tem_dor))return; (Array.isArray(r.regioes_lista)?r.regioes_lista:[]).forEach(reg=>{mapa[reg]=(mapa[reg]||0)+1;}); }); return Object.entries(mapa).sort((a,b)=>b[1]-a[1]); }
   function linhas(entries,vazio='Sem dados'){ if(!entries.length)return `<div class="small">${vazio}</div>`; return entries.map(([label,count])=>`<div class="sector-line"><span>${esc(label)}</span><strong>${count}</strong></div>`).join(''); }
+  function restaurarPainelSetor(){ const p=document.getElementById('detailPanel'); if(!p)return; p.style.width='min(520px,calc(100vw - 44px))'; p.style.padding='22px'; }
 
-  // Nome exclusivo para impedir que a função antiga de charts.js seja usada no clique laranja.
   window.openSectorInicialComparavel=function(setor){
+    restaurarPainelSetor();
     const items=(Array.isArray(DATA.records)?DATA.records:[]).filter(r=>texto(r.setor)===texto(setor));
     const total=items.length;
     const comDor=items.filter(r=>temDor(r.tem_dor)).length;
@@ -44,6 +45,7 @@
   };
 
   window.openSectorReavaliacaoAnalysis=function(setor){
+    restaurarPainelSetor();
     const items=(Array.isArray(DATA.reavaliacao1MesRows)?DATA.reavaliacao1MesRows:[]).filter(r=>texto(r['Setor'])===texto(setor));
     const total=items.length;
     const comDor=items.filter(r=>temDor(r['Resposta original sobre dor'])).length;
