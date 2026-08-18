@@ -36,6 +36,12 @@ async function carregarModulosEvolucao() {
     'data-modulo',
     'evolucao-estresse'
   );
+
+  await carregarScriptModulo(
+    'js/modules/evolucao-interferencia.js?v=20260817-2304',
+    'data-modulo',
+    'evolucao-interferencia'
+  );
 }
 
 async function init() {
@@ -53,6 +59,9 @@ async function init() {
   renderCharts();
   if(typeof window.renderEvolucaoEstresse1Mes === 'function') {
     window.renderEvolucaoEstresse1Mes();
+  }
+  if(typeof window.renderEvolucaoInterferencia1Mes === 'function') {
+    window.renderEvolucaoInterferencia1Mes();
   }
   preencherFiltroRegioes();
   renderBiblioteca();
