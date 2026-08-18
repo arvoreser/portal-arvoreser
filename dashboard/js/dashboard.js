@@ -46,7 +46,7 @@ async function carregarModulosEvolucao() {
   await carregarScriptModulo('js/modules/evolucao-estresse.js?v=20260817-2258','data-modulo','evolucao-estresse');
   await carregarScriptModulo('js/modules/evolucao-interferencia.js?v=20260817-2304','data-modulo','evolucao-interferencia');
   await carregarScriptModulo('js/modules/evolucao-gl.js?v=20260817-2328','data-modulo','evolucao-gl');
-  await carregarScriptModulo('js/modules/setor-reavaliacao.js?v=20260817-2352','data-modulo','setor-reavaliacao');
+  await carregarScriptModulo('js/modules/setor-reavaliacao.js?v=20260817-2340-fix2','data-modulo','setor-reavaliacao');
 }
 
 async function init() {
