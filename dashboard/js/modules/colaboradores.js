@@ -5,12 +5,12 @@ function renderDashboard() {
   document.getElementById('comDorMetric').textContent = DATA.summary.comDor;
   document.getElementById('mediaDorMetric').textContent = DATA.summary.dorMedia;
   document.getElementById('prioritariosMetric').textContent = DATA.summary.prioritarios;
-  document.getElementById('executiveBody').innerHTML = `
-    <tr><td>Colaboradores com dor</td><td>${DATA.summary.comDor}</td><td></td><td></td><td></td><td></td></tr>
-    <tr><td>Intensidade média da dor</td><td>${DATA.summary.dorMedia}</td><td></td><td></td><td></td><td></td></tr>
-    <tr><td>Setor mais sintomático</td><td>${esc(DATA.summary.topSetor)}</td><td></td><td></td><td></td><td></td></tr>
-    <tr><td>Região corporal mais acometida</td><td>${esc(DATA.summary.topReg)}</td><td></td><td></td><td></td><td></td></tr>
-    <tr><td>Colaboradores com dor ≥ 7</td><td>${DATA.summary.prioritarios}</td><td></td><td></td><td></td><td></td></tr>`;
+
+  const executiveBody = document.getElementById('executiveBody');
+  if(executiveBody) {
+    const executiveSection = executiveBody.closest('.section');
+    if(executiveSection) executiveSection.remove();
+  }
 }
 
 function renderList() {
