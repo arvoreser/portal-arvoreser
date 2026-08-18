@@ -1,0 +1,39 @@
+/* Painel compacto exclusivo para detalhe por região corporal */
+#detailPanel.region-detail-panel {
+  width: 360px !important;
+  max-width: calc(100vw - 32px) !important;
+  left: auto !important;
+  right: 22px !important;
+  top: 22px !important;
+  padding: 15px !important;
+  border-radius: 20px !important;
+}
+
+#detailPanel.region-detail-panel .region-click-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 5px !important;
+  margin-top: 10px !important;
+}
+
+#detailPanel.region-detail-panel .region-click-person {
+  width: 100% !important;
+  min-height: 34px !important;
+  padding: 7px 9px !important;
+  border-radius: 8px !important;
+}
+
+#detailPanel.region-detail-panel .region-click-name {
+  font-size: 12px !important;
+  line-height: 1.2 !important;
+}
+
+@media (max-width: 420px) {
+  #detailPanel.region-detail-panel {
+    width: calc(100vw - 24px) !important;
+    max-width: none !important;
+    left: 12px !important;
+    right: 12px !important;
+    top: 12px !important;
+  }
+}
