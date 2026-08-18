@@ -42,7 +42,7 @@ async function garantirModulosEssenciais() {
 
 async function carregarModulosEvolucao() {
   await carregarScriptModulo('js/modules/evolucao-dor.js?v=20260817-2249','data-modulo','evolucao-dor');
-  await carregarScriptModulo('js/modules/evolucao-regioes.js?v=20260817-2315','data-modulo','evolucao-regioes');
+  await carregarScriptModulo('js/modules/evolucao-regioes.js?v=20260817-2358','data-modulo','evolucao-regioes');
   await carregarScriptModulo('js/modules/evolucao-estresse.js?v=20260817-2258','data-modulo','evolucao-estresse');
   await carregarScriptModulo('js/modules/evolucao-interferencia.js?v=20260817-2304','data-modulo','evolucao-interferencia');
   await carregarScriptModulo('js/modules/evolucao-gl.js?v=20260817-2328','data-modulo','evolucao-gl');
