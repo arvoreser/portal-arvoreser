@@ -25,7 +25,6 @@ async function carregarModulosEvolucao() {
   await carregarScriptModulo('js/modules/evolucao-dor.js?v=20260817-2249','data-modulo','evolucao-dor');
   await carregarScriptModulo('js/modules/evolucao-estresse.js?v=20260817-2258','data-modulo','evolucao-estresse');
   await carregarScriptModulo('js/modules/evolucao-interferencia.js?v=20260817-2304','data-modulo','evolucao-interferencia');
-  await carregarScriptModulo('js/modules/evolucao-atividade.js?v=20260817-2312','data-modulo','evolucao-atividade');
 }
 
 async function init() {
@@ -41,7 +40,6 @@ async function init() {
   renderCharts();
   if(typeof window.renderEvolucaoEstresse1Mes === 'function') window.renderEvolucaoEstresse1Mes();
   if(typeof window.renderEvolucaoInterferencia1Mes === 'function') window.renderEvolucaoInterferencia1Mes();
-  if(typeof window.renderEvolucaoAtividade1Mes === 'function') window.renderEvolucaoAtividade1Mes();
   preencherFiltroRegioes();
   renderBiblioteca();
   renderExerciciosAplicados();
