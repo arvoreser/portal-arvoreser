@@ -32,7 +32,7 @@ async function carregarModulosEvolucao() {
   );
 
   await carregarScriptModulo(
-    'js/modules/evolucao-estresse.js?v=20260817-2252',
+    'js/modules/evolucao-estresse.js?v=20260817-2258',
     'data-modulo',
     'evolucao-estresse'
   );
@@ -51,6 +51,9 @@ async function init() {
   renderList();
   renderPerson();
   renderCharts();
+  if(typeof window.renderEvolucaoEstresse1Mes === 'function') {
+    window.renderEvolucaoEstresse1Mes();
+  }
   preencherFiltroRegioes();
   renderBiblioteca();
   renderExerciciosAplicados();
