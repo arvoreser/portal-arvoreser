@@ -118,12 +118,12 @@
         .ev-reg-sub{font-size:12px;color:#667085;margin-top:4px}
         .ev-reg-chartbox{height:320px;position:relative}
         .ev-reg-nota{font-size:11px;color:#667085;margin-top:8px;line-height:1.45}
-        .region-click-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:16px}
-        .region-click-person{display:flex;align-items:center;gap:8px;border:1px solid rgba(6,64,1,.12);border-radius:10px;padding:10px 12px;background:#fff;cursor:pointer}
+        .region-click-list{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+        .region-click-person{display:flex;align-items:center;gap:8px;border:1px solid rgba(6,64,1,.12);border-radius:9px;padding:8px 10px;background:#fff;cursor:pointer;min-height:38px}
         .region-click-person:hover{background:#f7fbf5}
         .region-click-person .risk-dot{flex:0 0 auto}
-        .region-click-person .region-click-name{font-weight:600;color:#1f2937;min-width:0}
-        @media(max-width:760px){.ev-reg-chartbox{height:360px}.region-click-list{grid-template-columns:1fr}}
+        .region-click-person .region-click-name{font-weight:600;color:#1f2937;min-width:0;font-size:13px;line-height:1.25}
+        @media(max-width:760px){.ev-reg-chartbox{height:360px}}
       `;
       document.head.appendChild(s);
     }
@@ -136,8 +136,8 @@
     const mes1=datasetIndex===1;
     const pessoas=(mes1?item.mes1:item.inicial).slice().sort((a,b)=>b.nota-a.nota||String(a.nome).localeCompare(String(b.nome),'pt-BR'));
     const badge=mes1
-      ? '<span style="font-size:13px;font-weight:700;color:#187900;background:#edf8ea;border:1px solid rgba(24,121,0,.18);padding:6px 10px;border-radius:999px;margin-left:8px">Reavaliação de 1 mês</span>'
-      : '<span style="font-size:13px;font-weight:700;color:#fd3105;background:rgba(253,49,5,.06);border:1px solid rgba(253,49,5,.18);padding:6px 10px;border-radius:999px;margin-left:8px">Avaliação inicial</span>';
+      ? '<span style="font-size:11px;font-weight:700;color:#187900;background:#edf8ea;border:1px solid rgba(24,121,0,.18);padding:5px 8px;border-radius:999px;margin-left:6px">1 mês</span>'
+      : '<span style="font-size:11px;font-weight:700;color:#fd3105;background:rgba(253,49,5,.06);border:1px solid rgba(253,49,5,.18);padding:5px 8px;border-radius:999px;margin-left:6px">Inicial</span>';
 
     const lista=pessoas.map(p=>{
       const id=Number(p.id);
@@ -145,11 +145,15 @@
       return `<div class="region-click-person"${acao}><span class="risk-dot">${risco(p.nota,true)}</span><span class="region-click-name">${esc(p.nome)}</span></div>`;
     }).join('');
 
+    const painel=document.getElementById('detailPanel');
+    painel.style.width='min(390px,calc(100vw - 44px))';
+    painel.style.padding='18px';
+
     document.getElementById('detailContent').innerHTML=`
-      <h2>Região: ${esc(item.label)} ${badge}</h2>
-      <div class="note">${pessoas.length} colaborador(es) com queixa nessa região.</div>
+      <h2 style="font-size:18px;margin-top:4px">Região: ${esc(item.label)} ${badge}</h2>
+      <div class="note" style="font-size:12px">${pessoas.length} colaborador(es) com queixa nessa região.</div>
       <div class="region-click-list">${lista || '<div class="small">Sem colaboradores nesta região.</div>'}</div>`;
-    document.getElementById('detailPanel').style.display='block';
+    painel.style.display='block';
   }
 
   window.renderEvolucaoRegioes1Mes=function(){
