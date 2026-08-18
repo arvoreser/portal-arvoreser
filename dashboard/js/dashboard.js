@@ -58,6 +58,30 @@ async function carregarModulosEvolucao() {
   await carregarScriptModulo('js/modules/setor-reavaliacao.js?v=20260817-2358','data-modulo','setor-reavaliacao');
 }
 
+function renderResumoComparativo1Mes(){
+  const reavs=Array.isArray(DATA.reavaliacao1MesRows)?DATA.reavaliacao1MesRows.filter(r=>String(r.ID??'').trim()):[];
+  if(!reavs.length) return;
+
+  const norm=v=>String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase();
+  const temDor=v=>{ const x=norm(v); return x==='sim'||x.startsWith('sim '); };
+  const nota=v=>{ const m=String(v??'').replace(',','.').match(/-?\d+(?:\.\d+)?/); if(!m)return 0; const n=Number(m[0]); return Number.isFinite(n)?n:0; };
+
+  const comDor1=reavs.filter(r=>temDor(r['Resposta original sobre dor'])).length;
+  const notasSintomaticos=reavs.filter(r=>temDor(r['Resposta original sobre dor'])).map(r=>nota(r['Nota da dor'])).filter(n=>n>0);
+  const media1=notasSintomaticos.length ? (notasSintomaticos.reduce((a,b)=>a+b,0)/notasSintomaticos.length).toFixed(1).replace('.',',') : '—';
+  const dorAlta1=reavs.filter(r=>nota(r['Nota da dor'])>=7).length;
+
+  const valor=(inicial,mes1)=>`<span>${inicial}</span><span style="color:#98a2b3;font-weight:600;margin:0 8px">/</span><span style="color:#187900">${mes1}</span>`;
+
+  const comDor=document.getElementById('comDorMetric');
+  const media=document.getElementById('mediaDorMetric');
+  const alta=document.getElementById('prioritariosMetric');
+
+  if(comDor) comDor.innerHTML=valor(DATA.summary.comDor,comDor1);
+  if(media) media.innerHTML=valor(DATA.summary.dorMedia,media1);
+  if(alta) alta.innerHTML=valor(DATA.summary.prioritarios,dorAlta1);
+}
+
 async function init() {
   await carregarConfiguracaoEmpresa();
   document.title = `${EMPRESA.nome} | ArvoreSer Saúde Corporativa`;
@@ -69,6 +93,7 @@ async function init() {
   await carregarModulosEvolucao();
 
   renderDashboard();
+  renderResumoComparativo1Mes();
   renderList();
   renderPerson();
   renderCharts();
