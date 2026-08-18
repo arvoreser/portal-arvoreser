@@ -1,5 +1,14 @@
 // Inicialização do dashboard
 
+(function carregarEstiloRegiao(){
+  if(document.querySelector('link[data-region-detail-style]')) return;
+  const link=document.createElement('link');
+  link.rel='stylesheet';
+  link.href='css/region-detail.css?v=20260817-2359';
+  link.setAttribute('data-region-detail-style','true');
+  document.head.appendChild(link);
+})();
+
 function carregarScriptModulo(src, atributo, valor) {
   return new Promise((resolve, reject) => {
     const seletor = `script[${atributo}="${valor}"]`;
