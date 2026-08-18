@@ -1,25 +1,41 @@
 // Inicialização do dashboard
 
-function carregarModuloEvolucaoDor() {
+function carregarScriptModulo(src, atributo, valor) {
   return new Promise((resolve, reject) => {
-    const existente = document.querySelector('script[data-modulo="evolucao-dor"]');
+    const seletor = `script[${atributo}="${valor}"]`;
+    const existente = document.querySelector(seletor);
+
     if(existente) {
       if(existente.dataset.carregado === 'true') return resolve();
       existente.addEventListener('load', () => resolve(), { once:true });
-      existente.addEventListener('error', () => reject(new Error('Não foi possível carregar o módulo de evolução da dor.')), { once:true });
+      existente.addEventListener('error', () => reject(new Error(`Não foi possível carregar ${valor}.`)), { once:true });
       return;
     }
 
     const script = document.createElement('script');
-    script.src = 'js/modules/evolucao-dor.js?v=20260817-2249';
-    script.dataset.modulo = 'evolucao-dor';
+    script.src = src;
+    script.setAttribute(atributo, valor);
     script.onload = () => {
       script.dataset.carregado = 'true';
       resolve();
     };
-    script.onerror = () => reject(new Error('Não foi possível carregar o módulo de evolução da dor.'));
+    script.onerror = () => reject(new Error(`Não foi possível carregar ${valor}.`));
     document.head.appendChild(script);
   });
+}
+
+async function carregarModulosEvolucao() {
+  await carregarScriptModulo(
+    'js/modules/evolucao-dor.js?v=20260817-2249',
+    'data-modulo',
+    'evolucao-dor'
+  );
+
+  await carregarScriptModulo(
+    'js/modules/evolucao-estresse.js?v=20260817-2252',
+    'data-modulo',
+    'evolucao-estresse'
+  );
 }
 
 async function init() {
@@ -30,7 +46,7 @@ async function init() {
   if(companyName) companyName.textContent = EMPRESA.nome;
 
   await carregarDadosEmpresa();
-  await carregarModuloEvolucaoDor();
+  await carregarModulosEvolucao();
   renderDashboard();
   renderList();
   renderPerson();
