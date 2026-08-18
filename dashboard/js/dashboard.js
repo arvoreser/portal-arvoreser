@@ -1,5 +1,27 @@
 // Inicialização do dashboard
 
+function carregarModuloEvolucaoDor() {
+  return new Promise((resolve, reject) => {
+    const existente = document.querySelector('script[data-modulo="evolucao-dor"]');
+    if(existente) {
+      if(existente.dataset.carregado === 'true') return resolve();
+      existente.addEventListener('load', () => resolve(), { once:true });
+      existente.addEventListener('error', () => reject(new Error('Não foi possível carregar o módulo de evolução da dor.')), { once:true });
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'js/modules/evolucao-dor.js';
+    script.dataset.modulo = 'evolucao-dor';
+    script.onload = () => {
+      script.dataset.carregado = 'true';
+      resolve();
+    };
+    script.onerror = () => reject(new Error('Não foi possível carregar o módulo de evolução da dor.'));
+    document.head.appendChild(script);
+  });
+}
+
 async function init() {
   await carregarConfiguracaoEmpresa();
 
@@ -8,6 +30,7 @@ async function init() {
   if(companyName) companyName.textContent = EMPRESA.nome;
 
   await carregarDadosEmpresa();
+  await carregarModuloEvolucaoDor();
   renderDashboard();
   renderList();
   renderPerson();
