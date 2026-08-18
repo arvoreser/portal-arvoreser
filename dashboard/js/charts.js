@@ -325,35 +325,76 @@ function openSectorAnalysis(setor){
   document.getElementById('detailPanel').style.display='block';
 }
 
+function respostaIndicaDor(valor){
+  const v = String(valor ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g,'')
+    .trim()
+    .toLowerCase();
+  return v === 'sim' || v.startsWith('sim ');
+}
+
+function obterDorPorSetorComparativa(){
+  const iniciais = Array.isArray(DATA.records) ? DATA.records : [];
+  const reavs = Array.isArray(DATA.reavaliacao1MesRows) ? DATA.reavaliacao1MesRows : [];
+  const reavPorId = new Map();
+
+  reavs.forEach(r => {
+    const id = String(r.ID ?? '').trim();
+    if(id) reavPorId.set(id, r);
+  });
+
+  const mapa = new Map();
+
+  iniciais.forEach(i => {
+    const id = String(i.id ?? '').trim();
+    const r = reavPorId.get(id);
+    if(!r) return;
+
+    const setor = String(r['Setor'] ?? i.setor ?? '').trim() || 'Não informado';
+    if(!mapa.has(setor)) mapa.set(setor, {setor, inicial:0, mes1:0, total:0});
+    const item = mapa.get(setor);
+    item.total++;
+
+    if(respostaIndicaDor(i.tem_dor)) item.inicial++;
+    if(respostaIndicaDor(r['Resposta original sobre dor'])) item.mes1++;
+  });
+
+  return [...mapa.values()].sort((a,b)=>{
+    const maxA = Math.max(a.inicial,a.mes1);
+    const maxB = Math.max(b.inicial,b.mes1);
+    return maxB - maxA || a.setor.localeCompare(b.setor,'pt-BR');
+  });
+}
+
 function renderCharts() {
   if(setorChart) setorChart.destroy();
   if(regChart) regChart.destroy();
 
-  const colorByValue = (v)=>{
-    if(v<=1) return {bg:'#8CC8F2',bd:'#5EADE3'};
-    if(v===2) return {bg:'#FF9B42',bd:'#E67F24'};
-    if(v===3) return {bg:'#F2D95C',bd:'#D0B93E'};
-    if(v===4) return {bg:'#EF6A62',bd:'#D94D45'};
-    if(v===5) return {bg:'#A98AD9',bd:'#8768BB'};
-    if(v===6) return {bg:'#54D6C2',bd:'#35B7A3'};
-    if(v===7) return {bg:'#F48FB1',bd:'#DB6C92'};
-    if(v===8) return {bg:'#6CCB5F',bd:'#4FAA45'};
-    if(v===9) return {bg:'#9E9E9E',bd:'#7E7E7E'};
-    return {bg:'#D8C3A5',bd:'#B99F7B'};
-  };
+  const comparativoSetores = obterDorPorSetorComparativa();
 
   setorChart = new Chart(document.getElementById('setorChart'), {
     type:'bar',
     data:{
-      labels:DATA.setorRows.map(x=>x.setor),
-      datasets:[{
-        label:'Com dor',
-        data:DATA.setorRows.map(x=>x.comDor),
-        backgroundColor:DATA.setorRows.map(r=>colorByValue(Number(r.comDor)).bg),
-        borderColor:DATA.setorRows.map(r=>colorByValue(Number(r.comDor)).bd),
-        borderWidth:1,
-        borderRadius:4
-      }]
+      labels:comparativoSetores.map(x=>x.setor),
+      datasets:[
+        {
+          label:'Avaliação inicial',
+          data:comparativoSetores.map(x=>x.inicial),
+          backgroundColor:'rgba(253,49,5,.28)',
+          borderColor:'#fd3105',
+          borderWidth:1,
+          borderRadius:5
+        },
+        {
+          label:'1 mês',
+          data:comparativoSetores.map(x=>x.mes1),
+          backgroundColor:'rgba(23,250,3,.25)',
+          borderColor:'#187900',
+          borderWidth:1,
+          borderRadius:5
+        }
+      ]
     },
     options:{
       responsive:true,
@@ -361,15 +402,19 @@ function renderCharts() {
       onClick:(evt,elements)=>{
         if(elements.length){
           const i=elements[0].index;
-          openSectorAnalysis(DATA.setorRows[i].setor);
+          openSectorAnalysis(comparativoSetores[i].setor);
         }
       },
       plugins:{
-        legend:{display:false},
+        legend:{display:true,position:'top'},
         tooltip:{
           callbacks:{
-            label:(ctx)=>`${ctx.label}: ${ctx.raw}`,
-            afterLabel:()=> 'Clique para saber mais'
+            label:(ctx)=>`${ctx.dataset.label}: ${ctx.raw} colaborador(es) com dor`,
+            afterBody:(items)=>{
+              if(!items.length) return '';
+              const i=items[0].dataIndex;
+              return `Reavaliados no setor: ${comparativoSetores[i].total}`;
+            }
           }
         }
       },
@@ -380,43 +425,24 @@ function renderCharts() {
     }
   });
 
-  regChart = new Chart(document.getElementById('regChart'), {
-    type:'bar',
-    data:{
-      labels:DATA.regRows.map(x=>x.regiao),
-      datasets:[{
-        label:'Queixas',
-        data:DATA.regRows.map(x=>x.qtd),
-        backgroundColor:DATA.regRows.map(r=>colorByValue(Number(r.qtd)).bg),
-        borderColor:DATA.regRows.map(r=>colorByValue(Number(r.qtd)).bd),
-        borderWidth:1,
-        borderRadius:4
-      }]
-    },
-    options:{
-      indexAxis:'y',
-      responsive:true,
-      maintainAspectRatio:false,
-      onClick:(evt,elements)=>{
-        if(elements.length){
-          const i=elements[0].index;
-          openRegionAnalysis(DATA.regRows[i].regiao);
-        }
+  const regCanvas = document.getElementById('regChart');
+  if(regCanvas){
+    regChart = new Chart(regCanvas, {
+      type:'bar',
+      data:{
+        labels:DATA.regRows.map(x=>x.regiao),
+        datasets:[{
+          label:'Queixas',
+          data:DATA.regRows.map(x=>x.qtd),
+          backgroundColor:'#D8C3A5',
+          borderColor:'#B99F7B',
+          borderWidth:1,
+          borderRadius:4
+        }]
       },
-      plugins:{
-        legend:{display:false},
-        tooltip:{
-          callbacks:{
-            label:(ctx)=>`${ctx.label}: ${ctx.raw}`,
-            afterLabel:()=> 'Clique para saber mais'
-          }
-        }
-      },
-      scales:{
-        x:{beginAtZero:true,ticks:{precision:0}}
-      }
-    }
-  });
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}
+    });
+  }
 
   renderEvolucaoDor1Mes();
 }
