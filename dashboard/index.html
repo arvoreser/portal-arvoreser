@@ -13,9 +13,7 @@
 
 <div class="app">
   <aside class="sidebar">
-    <div class="brand-wrap">
-      <div class="brand">ArvoreSer<br>Saúde Corporativa</div>
-    </div>
+    <div class="brand-wrap"><div class="brand">ArvoreSer<br>Saúde Corporativa</div></div>
     <a href="../index.html" class="voltar-portal">← Voltar ao Portal</a>
     <nav class="tabs">
       <button class="tab active" onclick="showView('dashboard')"><span>⌂</span>Dashboard</button>
@@ -23,118 +21,24 @@
       <button class="tab" onclick="showView('biblioteca')"><span>▤</span>Biblioteca</button>
       <button class="tab" onclick="showView('exercicios')"><span>↔</span>Exercícios</button>
     </nav>
-    <div class="side-title">Colaboradores</div>
-    <div id="peopleList" class="list"></div>
+    <div class="side-title">Colaboradores</div><div id="peopleList" class="list"></div>
   </aside>
-
   <main class="main">
     <section id="dashboardView">
-      <div class="topbar dashboard-company-header">
-        <div>
-          <h1 id="companyName">Aladim Brindes</h1>
-          <div id="dashboardSubtitle" class="note"></div>
-        </div>
-        <div class="company-quote">🌿 “Cuidar de quem move sua empresa é fortalecer seus resultados.”</div>
-      </div>
-
-      <div class="cards dashboard-metrics">
-        <div class="card summary-card"><div class="label">Colaboradores com dor</div><div id="comDorMetric" class="metric">—</div></div>
-        <div class="card summary-card"><div class="label">Média da dor entre sintomáticos</div><div id="mediaDorMetric" class="metric">—</div></div>
-        <div class="card summary-card"><div class="label">Dor ≥ 7</div><div id="prioritariosMetric" class="metric">—</div></div>
-      </div>
-
-      <div class="grid dashboard-grid">
-        <div class="section dashboard-chart-section">
-          <h3><span class="section-dot">◈</span>Dor por setor</h3>
-          <div class="chartbox"><canvas id="setorChart"></canvas></div>
-          <div class="click-hint"></div>
-        </div>
-        <canvas id="regChart" style="display:none"></canvas>
-        <div class="section full dashboard-evolution-section">
-          <h3><span class="section-dot">◈</span>Painel executivo de evolução</h3>
-          <div class="table-wrap"><table><thead><tr><th>Indicador</th><th>Avaliação inicial</th><th>Mês 1</th><th>Mês 2</th><th>Mês 3</th><th>Evolução</th></tr></thead><tbody id="executiveBody"></tbody></table></div>
-        </div>
-      </div>
+      <div class="topbar dashboard-company-header"><div><h1 id="companyName">Aladim Brindes</h1><div id="dashboardSubtitle" class="note"></div></div><div class="company-quote">🌿 “Cuidar de quem move sua empresa é fortalecer seus resultados.”</div></div>
+      <div class="cards dashboard-metrics"><div class="card summary-card"><div class="label">Colaboradores com dor</div><div id="comDorMetric" class="metric">—</div></div><div class="card summary-card"><div class="label">Média da dor entre sintomáticos</div><div id="mediaDorMetric" class="metric">—</div></div><div class="card summary-card"><div class="label">Dor ≥ 7</div><div id="prioritariosMetric" class="metric">—</div></div></div>
+      <div class="grid dashboard-grid"><div class="section dashboard-chart-section"><h3><span class="section-dot">◈</span>Dor por setor</h3><div class="chartbox"><canvas id="setorChart"></canvas></div><div class="click-hint"></div></div><canvas id="regChart" style="display:none"></canvas><div class="section full dashboard-evolution-section"><h3><span class="section-dot">◈</span>Painel executivo de evolução</h3><div class="table-wrap"><table><thead><tr><th>Indicador</th><th>Avaliação inicial</th><th>Mês 1</th><th>Mês 2</th><th>Mês 3</th><th>Evolução</th></tr></thead><tbody id="executiveBody"></tbody></table></div></div></div>
     </section>
-
     <section id="individualView" class="hidden">
-      <div class="topbar">
-        <div><h1 id="personName">Ficha Individual</h1><div id="personSub" class="note"></div></div>
-        <span id="dorBadge" class="badge"></span>
-      </div>
-      <div class="person-meta-strip">
-        <div class="person-meta-item"><span class="meta-icon">▣</span><div><div class="meta-label">Tempo de empresa</div><div id="tempoEmpresaMetric" class="meta-value">—</div></div></div>
-        <div class="person-meta-item"><span class="meta-icon">□</span><div><div class="meta-label">Data da avaliação inicial</div><div id="dataAvaliacaoMetric" class="meta-value">—</div></div></div>
-        <div class="person-meta-item"><span class="meta-icon">↶</span><div><div class="meta-label">Última atualização</div><div id="ultimaAtualizacaoMetric" class="meta-value">—</div></div></div>
-      </div>
-      <div class="grid">
-        <div class="section full">
-          <h2 class="section-heading"><span class="heading-icon">▶</span>Vídeo individual</h2>
-          <div id="youtubeEmptyState" class="youtube-box"><input id="youtubeInput" placeholder="Cole aqui o link individual do YouTube"><button onclick="saveYoutubeLink()">Salvar Link</button></div>
-          <div id="youtubeSavedState" class="youtube-saved hidden"><a id="youtubeLink" href="#" target="_blank" class="youtube-link">🔗 Link cadastrado (clique para abrir)</a><button class="delete-link" onclick="deleteYoutubeLink()">🗑 Deletar link</button></div>
-        </div>
-        <div class="section full fixed-section"><h2 class="section-heading"><span class="heading-icon">♙</span>Dados fixos do colaborador</h2><div id="fixedData" class="info-grid"></div></div>
-        <div class="section full assessment-section"><h2 class="section-heading"><span class="heading-icon assessment">▣</span>Avaliação inicial</h2><div id="initialData" class="assessment-layout"></div></div>
-        <div class="section full physio-observation-section">
-          <h2 class="section-heading"><span class="heading-icon">✎</span>Observação da fisio</h2>
-          <textarea id="observacaoFisioInput" class="obs-textarea" placeholder="Escreva aqui sua observação presencial..."></textarea>
-          <div class="obs-actions"><button class="save-btn" onclick="saveObsFisio()">Salvar Observação</button><span id="obsStatus" class="save-status"></span></div>
-          <div id="obsHistory" class="obs-history"></div>
-        </div>
-        <div class="section full evolution-history-section">
-          <h2 class="section-heading"><span class="heading-icon">↗</span>Histórico de evolução</h2>
-          <div class="table-wrap"><table><thead><tr><th>Data</th><th>Dor</th><th>Mesma dor?</th><th>Região</th><th>Nota</th><th>Interfere?</th><th>Estresse</th><th>Água</th><th>Comprometimento</th><th>Observação</th></tr></thead><tbody><tr><td colspan="10">Sem reavaliações importadas ainda.</td></tr></tbody></table></div>
-        </div>
-      </div>
+      <div class="topbar"><div><h1 id="personName">Ficha Individual</h1><div id="personSub" class="note"></div></div><span id="dorBadge" class="badge"></span></div>
+      <div class="person-meta-strip"><div class="person-meta-item"><span class="meta-icon">▣</span><div><div class="meta-label">Tempo de empresa</div><div id="tempoEmpresaMetric" class="meta-value">—</div></div></div><div class="person-meta-item"><span class="meta-icon">□</span><div><div class="meta-label">Data da avaliação inicial</div><div id="dataAvaliacaoMetric" class="meta-value">—</div></div></div><div class="person-meta-item"><span class="meta-icon">↶</span><div><div class="meta-label">Última atualização</div><div id="ultimaAtualizacaoMetric" class="meta-value">—</div></div></div></div>
+      <div class="grid"><div class="section full"><h2 class="section-heading"><span class="heading-icon">▶</span>Vídeo individual</h2><div id="youtubeEmptyState" class="youtube-box"><input id="youtubeInput" placeholder="Cole aqui o link individual do YouTube"><button onclick="saveYoutubeLink()">Salvar Link</button></div><div id="youtubeSavedState" class="youtube-saved hidden"><a id="youtubeLink" href="#" target="_blank" class="youtube-link">🔗 Link cadastrado (clique para abrir)</a><button class="delete-link" onclick="deleteYoutubeLink()">🗑 Deletar link</button></div></div><div class="section full fixed-section"><h2 class="section-heading"><span class="heading-icon">♙</span>Dados fixos do colaborador</h2><div id="fixedData" class="info-grid"></div></div><div class="section full assessment-section"><h2 class="section-heading"><span class="heading-icon assessment">▣</span>Avaliação inicial</h2><div id="initialData" class="assessment-layout"></div></div><div class="section full physio-observation-section"><h2 class="section-heading"><span class="heading-icon">✎</span>Observação da fisio</h2><textarea id="observacaoFisioInput" class="obs-textarea" placeholder="Escreva aqui sua observação presencial..."></textarea><div class="obs-actions"><button class="save-btn" onclick="saveObsFisio()">Salvar Observação</button><span id="obsStatus" class="save-status"></span></div><div id="obsHistory" class="obs-history"></div></div><div class="section full evolution-history-section"><h2 class="section-heading"><span class="heading-icon">↗</span>Histórico de evolução</h2><div class="table-wrap"><table><thead><tr><th>Data</th><th>Dor</th><th>Mesma dor?</th><th>Região</th><th>Nota</th><th>Interfere?</th><th>Estresse</th><th>Água</th><th>Comprometimento</th><th>Observação</th></tr></thead><tbody><tr><td colspan="10">Sem reavaliações importadas ainda.</td></tr></tbody></table></div></div></div>
     </section>
-
-    <section id="bibliotecaView" class="hidden">
-      <div class="topbar"><div><h1>Biblioteca de Exercícios</h1><div class="note"></div></div></div>
-      <div class="section full">
-        <div class="library-controls"><select id="regionFilter" onchange="renderBiblioteca()"><option value="">Todas as regiões</option></select><select id="categoryFilter" onchange="renderBiblioteca()"><option value="">Todas as categorias</option></select></div>
-        <div id="exerciseList" class="exercise-grid"></div>
-      </div>
-    </section>
-
-    <section id="exerciciosView" class="hidden">
-      <div class="topbar"><div><h1>Exercícios Aplicados</h1><div class="note"></div></div></div>
-      <div class="section full exercises-page">
-        <div class="ex-form">
-          <label>Grupo<select id="exGrupo" onchange="trocarContextoExercicios()"><option value="Escritório">Escritório</option><option value="Matriz">Matriz</option><option value="Galpão">Galpão</option></select></label>
-          <label>Período<select id="exPeriodo" onchange="trocarContextoExercicios()"><option value="Manhã">Manhã</option><option value="Tarde">Tarde</option></select></label>
-        </div>
-        <div id="exEditingAlert"></div>
-        <div class="ex-history-section"><h3>Histórico do grupo/período</h3><div id="exHistory" class="ex-history"></div></div>
-        <div class="ex-selected">
-          <div class="sector-box-title">Exercícios selecionados</div>
-          <div id="exSelectedList" class="ex-selected-list"><span class="small">Nenhum exercício selecionado.</span></div>
-          <div class="ex-actions"><button class="save-btn" onclick="salvarSessaoExercicios()">Salvar Sessão</button><button class="ex-delete-btn edit-only" onclick="deletarSessaoEmEdicao()">Deletar sessão</button><button class="ex-cancel-btn edit-only" onclick="cancelarEdicaoExercicios()">Cancelar edição</button><span id="exStatus" class="save-status"></span></div>
-        </div>
-        <div class="ex-library-section">
-          <div class="ex-library-header"><h3>Biblioteca</h3><div class="ex-library-filters"><label>Região<select id="exRegionFilter" onchange="renderExerciciosAplicados()"><option value="">Todas as regiões</option></select></label><label>Categoria<select id="exCategoryFilter" onchange="renderExerciciosAplicados()"><option value="">Todas as categorias</option></select></label></div></div>
-          <div id="exLibraryList" class="ex-library"></div>
-        </div>
-      </div>
-    </section>
-
-    <section id="diarioView" class="hidden">
-      <div class="topbar"><div><h1>Diário da Fisio</h1><div class="note">Registro de acontecimentos relevantes</div></div></div>
-      <div class="section full"><textarea id="diarioInput" class="diario-textarea" placeholder="Escreva aqui uma observação importante do dia..."></textarea><div class="diario-actions"><button class="save-btn" onclick="salvarDiario()">Salvar</button><span id="diarioStatus" class="save-status"></span></div><h2>Histórico</h2><div id="diarioHistory" class="diario-history"></div></div>
-    </section>
+    <section id="bibliotecaView" class="hidden"><div class="topbar"><div><h1>Biblioteca de Exercícios</h1><div class="note"></div></div></div><div class="section full"><div class="library-controls"><select id="regionFilter" onchange="renderBiblioteca()"><option value="">Todas as regiões</option></select><select id="categoryFilter" onchange="renderBiblioteca()"><option value="">Todas as categorias</option></select></div><div id="exerciseList" class="exercise-grid"></div></div></section>
+    <section id="exerciciosView" class="hidden"><div class="topbar"><div><h1>Exercícios Aplicados</h1><div class="note"></div></div></div><div class="section full exercises-page"><div class="ex-form"><label>Grupo<select id="exGrupo" onchange="trocarContextoExercicios()"><option value="Escritório">Escritório</option><option value="Matriz">Matriz</option><option value="Galpão">Galpão</option></select></label><label>Período<select id="exPeriodo" onchange="trocarContextoExercicios()"><option value="Manhã">Manhã</option><option value="Tarde">Tarde</option></select></label></div><div id="exEditingAlert"></div><div class="ex-history-section"><h3>Histórico do grupo/período</h3><div id="exHistory" class="ex-history"></div></div><div class="ex-selected"><div class="sector-box-title">Exercícios selecionados</div><div id="exSelectedList" class="ex-selected-list"><span class="small">Nenhum exercício selecionado.</span></div><div class="ex-actions"><button class="save-btn" onclick="salvarSessaoExercicios()">Salvar Sessão</button><button class="ex-delete-btn edit-only" onclick="deletarSessaoEmEdicao()">Deletar sessão</button><button class="ex-cancel-btn edit-only" onclick="cancelarEdicaoExercicios()">Cancelar edição</button><span id="exStatus" class="save-status"></span></div></div><div class="ex-library-section"><div class="ex-library-header"><h3>Biblioteca</h3><div class="ex-library-filters"><label>Região<select id="exRegionFilter" onchange="renderExerciciosAplicados()"><option value="">Todas as regiões</option></select></label><label>Categoria<select id="exCategoryFilter" onchange="renderExerciciosAplicados()"><option value="">Todas as categorias</option></select></label></div></div><div id="exLibraryList" class="ex-library"></div></div></div></section>
+    <section id="diarioView" class="hidden"><div class="topbar"><div><h1>Diário da Fisio</h1><div class="note">Registro de acontecimentos relevantes</div></div></div><div class="section full"><textarea id="diarioInput" class="diario-textarea" placeholder="Escreva aqui uma observação importante do dia..."></textarea><div class="diario-actions"><button class="save-btn" onclick="salvarDiario()">Salvar</button><span id="diarioStatus" class="save-status"></span></div><h2>Histórico</h2><div id="diarioHistory" class="diario-history"></div></div></section>
   </main>
 </div>
-
-<script src="js/api.js"></script>
-<script src="js/state.js"></script>
-<script src="js/modules/utils.js"></script>
-<script src="js/modules/colaboradores.js"></script>
-<script src="js/modules/observacoes.js"></script>
-<script src="js/modules/youtube.js"></script>
-<script src="js/modules/biblioteca.js"></script>
-<script src="js/modules/exercicios.js"></script>
-<script src="js/modules/diario.js"></script>
-<script src="js/charts.js?v=20260817-2342"></script>
-<script src="js/login.js"></script>
-<script src="js/dashboard.js?v=20260817-2348"></script>
+<script src="js/api.js"></script><script src="js/state.js"></script><script src="js/modules/utils.js"></script><script src="js/modules/colaboradores.js"></script><script src="js/modules/observacoes.js"></script><script src="js/modules/youtube.js"></script><script src="js/modules/biblioteca.js"></script><script src="js/modules/exercicios.js"></script><script src="js/modules/diario.js"></script><script src="js/charts.js?v=20260817-2342"></script><script src="js/login.js"></script><script src="js/dashboard.js?v=20260817-2355"></script>
 </body>
 </html>
