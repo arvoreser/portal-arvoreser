@@ -8,24 +8,9 @@
     const s=String(v??'').trim();
     return s ? s.split(/[,;|\/]+/).map(x=>x.trim()).filter(Boolean) : [];
   }
-
-  function normalizar(v){
-    return String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase();
-  }
-
-  function nota(v){
-    const m=String(v??'').replace(',','.').match(/-?\d+(?:\.\d+)?/);
-    if(!m) return 0;
-    const n=Number(m[0]);
-    return Number.isFinite(n) ? n : 0;
-  }
-
-  function risco(n,dor=true){
-    if(n>=7) return '🔴';
-    if(n>=4) return '🟠';
-    if(dor) return '🟡';
-    return '🟢';
-  }
+  function normalizar(v){ return String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase(); }
+  function nota(v){ const m=String(v??'').replace(',','.').match(/-?\d+(?:\.\d+)?/); if(!m)return 0; const n=Number(m[0]); return Number.isFinite(n)?n:0; }
+  function risco(n,dor=true){ if(n>=7)return '🔴'; if(n>=4)return '🟠'; if(dor)return '🟡'; return '🟢'; }
 
   function dados(){
     const iniciais=Array.isArray(DATA.records)?DATA.records:[];
@@ -34,8 +19,7 @@
     const pares=[];
     iniciais.forEach(i=>{
       const id=String(i.id??'').trim();
-      const r=mapa.get(id);
-      if(!r)return;
+      const r=mapa.get(id); if(!r)return;
       pares.push({id,nome:i.nome,inicial:regioes(i.regiao),mes1:regioes(r['Região da dor']),notaInicial:Number(i.nota_dor_num)||0,notaMes1:nota(r['Nota da dor'])});
     });
     return {total:iniciais.length,reavaliados:reavs.filter(r=>String(r.ID??'').trim()).length,pares};
@@ -43,12 +27,7 @@
 
   function montarItens(d){
     const canon=new Map();
-    function garantir(label){
-      const key=normalizar(label);
-      if(!key)return null;
-      if(!canon.has(key)) canon.set(key,{key,label,inicial:[],mes1:[]});
-      return canon.get(key);
-    }
+    function garantir(label){ const key=normalizar(label); if(!key)return null; if(!canon.has(key))canon.set(key,{key,label,inicial:[],mes1:[]}); return canon.get(key); }
     d.pares.forEach(p=>{
       [...new Set(p.inicial.map(x=>normalizar(x)))].forEach(key=>{const label=p.inicial.find(x=>normalizar(x)===key)||key;const item=garantir(label);if(item)item.inicial.push({id:p.id,nome:p.nome,nota:p.notaInicial});});
       [...new Set(p.mes1.map(x=>normalizar(x)))].forEach(key=>{const label=p.mes1.find(x=>normalizar(x)===key)||key;const item=garantir(label);if(item)item.mes1.push({id:p.id,nome:p.nome,nota:p.notaMes1});});
@@ -57,20 +36,16 @@
   }
 
   function bloco(){
-    let el=document.getElementById('evolucaoRegioesSection');
-    if(el)return el;
+    let el=document.getElementById('evolucaoRegioesSection'); if(el)return el;
     const setorCanvas=document.getElementById('setorChart');
     const setorSection=setorCanvas ? setorCanvas.closest('.dashboard-chart-section,.section') : null;
     const grid=setorSection ? setorSection.parentElement : null;
     const executivo=grid ? grid.querySelector('.dashboard-evolution-section') : null;
     if(!grid || !setorSection)return null;
-    const canvasAntigo=document.getElementById('regChart');
-    if(canvasAntigo) canvasAntigo.style.display='none';
-    el=document.createElement('div');
-    el.id='evolucaoRegioesSection';
-    el.className='section dashboard-chart-section';
+    const canvasAntigo=document.getElementById('regChart'); if(canvasAntigo)canvasAntigo.style.display='none';
+    el=document.createElement('div'); el.id='evolucaoRegioesSection'; el.className='section dashboard-chart-section';
     el.innerHTML=`<div class="ev-reg-head"><div><h3><span class="section-dot">◈</span>Dor por região corporal</h3><div class="ev-reg-sub">Avaliação inicial × reavaliação de 1 mês.</div></div></div><div class="ev-reg-chartbox"><canvas id="evRegChart"></canvas></div><div id="evRegNota" class="ev-reg-nota"></div>`;
-    if(executivo) grid.insertBefore(el,executivo); else setorSection.insertAdjacentElement('afterend',el);
+    if(executivo)grid.insertBefore(el,executivo); else setorSection.insertAdjacentElement('afterend',el);
     setorSection.style.gridColumn='auto'; el.style.gridColumn='auto';
     if(!document.getElementById('evRegStyles')){
       const s=document.createElement('style'); s.id='evRegStyles';
@@ -87,9 +62,8 @@
     const badge=mes1?'<span style="font-size:10px;font-weight:700;color:#187900;background:#edf8ea;border:1px solid rgba(24,121,0,.18);padding:4px 7px;border-radius:999px;margin-left:5px">1 mês</span>':'<span style="font-size:10px;font-weight:700;color:#fd3105;background:rgba(253,49,5,.06);border:1px solid rgba(253,49,5,.18);padding:4px 7px;border-radius:999px;margin-left:5px">Inicial</span>';
     const lista=pessoas.map(p=>{const id=Number(p.id);const acao=Number.isFinite(id)?` onclick="openPersonById(${id})"`:'';return `<div class="region-click-person"${acao}><span class="risk-dot">${risco(p.nota,true)}</span><span class="region-click-name">${esc(p.nome)}</span></div>`;}).join('');
     const painel=document.getElementById('detailPanel');
-    painel.style.width='min(330px,calc(100vw - 32px))';
-    painel.style.padding='15px';
-    painel.style.borderRadius='20px';
+    painel.classList.add('region-detail-panel');
+    painel.removeAttribute('style');
     document.getElementById('detailContent').innerHTML=`<h2 style="font-size:17px;margin:2px 0 10px">Região: ${esc(item.label)} ${badge}</h2><div class="note" style="font-size:11px;margin-top:0">${pessoas.length} colaborador(es) com queixa nessa região.</div><div class="region-click-list">${lista||'<div class="small">Sem colaboradores nesta região.</div>'}</div>`;
     painel.style.display='block';
   }
