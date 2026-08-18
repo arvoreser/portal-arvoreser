@@ -15,54 +15,33 @@ function carregarScriptModulo(src, atributo, valor) {
     const script = document.createElement('script');
     script.src = src;
     script.setAttribute(atributo, valor);
-    script.onload = () => {
-      script.dataset.carregado = 'true';
-      resolve();
-    };
+    script.onload = () => { script.dataset.carregado = 'true'; resolve(); };
     script.onerror = () => reject(new Error(`Não foi possível carregar ${valor}.`));
     document.head.appendChild(script);
   });
 }
 
 async function carregarModulosEvolucao() {
-  await carregarScriptModulo(
-    'js/modules/evolucao-dor.js?v=20260817-2249',
-    'data-modulo',
-    'evolucao-dor'
-  );
-
-  await carregarScriptModulo(
-    'js/modules/evolucao-estresse.js?v=20260817-2258',
-    'data-modulo',
-    'evolucao-estresse'
-  );
-
-  await carregarScriptModulo(
-    'js/modules/evolucao-interferencia.js?v=20260817-2304',
-    'data-modulo',
-    'evolucao-interferencia'
-  );
+  await carregarScriptModulo('js/modules/evolucao-dor.js?v=20260817-2249','data-modulo','evolucao-dor');
+  await carregarScriptModulo('js/modules/evolucao-estresse.js?v=20260817-2258','data-modulo','evolucao-estresse');
+  await carregarScriptModulo('js/modules/evolucao-interferencia.js?v=20260817-2304','data-modulo','evolucao-interferencia');
+  await carregarScriptModulo('js/modules/evolucao-atividade.js?v=20260817-2312','data-modulo','evolucao-atividade');
 }
 
 async function init() {
   await carregarConfiguracaoEmpresa();
-
   document.title = `${EMPRESA.nome} | ArvoreSer Saúde Corporativa`;
   const companyName = document.getElementById("companyName");
   if(companyName) companyName.textContent = EMPRESA.nome;
-
   await carregarDadosEmpresa();
   await carregarModulosEvolucao();
   renderDashboard();
   renderList();
   renderPerson();
   renderCharts();
-  if(typeof window.renderEvolucaoEstresse1Mes === 'function') {
-    window.renderEvolucaoEstresse1Mes();
-  }
-  if(typeof window.renderEvolucaoInterferencia1Mes === 'function') {
-    window.renderEvolucaoInterferencia1Mes();
-  }
+  if(typeof window.renderEvolucaoEstresse1Mes === 'function') window.renderEvolucaoEstresse1Mes();
+  if(typeof window.renderEvolucaoInterferencia1Mes === 'function') window.renderEvolucaoInterferencia1Mes();
+  if(typeof window.renderEvolucaoAtividade1Mes === 'function') window.renderEvolucaoAtividade1Mes();
   preencherFiltroRegioes();
   renderBiblioteca();
   renderExerciciosAplicados();
@@ -70,11 +49,5 @@ async function init() {
 }
 init().catch(error => {
   console.error(error);
-  document.body.innerHTML = `
-    <div style="font-family:Arial,sans-serif;padding:40px;max-width:760px;margin:auto">
-      <h1>Não foi possível abrir a empresa</h1>
-      <p>${esc(error.message)}</p>
-      <p>Confirme a configuração da empresa e a implantação do Apps Script.</p>
-    </div>
-  `;
+  document.body.innerHTML = `<div style="font-family:Arial,sans-serif;padding:40px;max-width:760px;margin:auto"><h1>Não foi possível abrir a empresa</h1><p>${esc(error.message)}</p><p>Confirme a configuração da empresa e a implantação do Apps Script.</p></div>`;
 });
