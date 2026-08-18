@@ -11,11 +11,33 @@ function carregarScriptModulo(src, atributo, valor) {
       return;
     }
     const script = document.createElement('script');
-    script.src = src; script.setAttribute(atributo, valor);
+    script.src = src;
+    script.setAttribute(atributo, valor);
     script.onload = () => { script.dataset.carregado = 'true'; resolve(); };
     script.onerror = () => reject(new Error(`Não foi possível carregar ${valor}.`));
     document.head.appendChild(script);
   });
+}
+
+function carregarScriptSeFaltar(src, teste, nome) {
+  if(teste()) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = src;
+    script.dataset.coreModulo = nome;
+    script.onload = () => teste() ? resolve() : reject(new Error(`O módulo ${nome} foi carregado, mas não ficou disponível.`));
+    script.onerror = () => reject(new Error(`Não foi possível carregar o módulo ${nome}.`));
+    document.head.appendChild(script);
+  });
+}
+
+async function garantirModulosEssenciais() {
+  await carregarScriptSeFaltar('js/modules/colaboradores.js?v=20260817-2320', () => typeof window.renderDashboard === 'function', 'colaboradores');
+  await carregarScriptSeFaltar('js/modules/observacoes.js?v=20260817-2320', () => typeof window.renderObsHistory === 'function', 'observacoes');
+  await carregarScriptSeFaltar('js/modules/youtube.js?v=20260817-2320', () => typeof window.updateYoutubeLink === 'function', 'youtube');
+  await carregarScriptSeFaltar('js/modules/biblioteca.js?v=20260817-2320', () => typeof window.renderBiblioteca === 'function', 'biblioteca');
+  await carregarScriptSeFaltar('js/modules/exercicios.js?v=20260817-2320', () => typeof window.renderExerciciosAplicados === 'function', 'exercicios');
+  await carregarScriptSeFaltar('js/modules/diario.js?v=20260817-2320', () => typeof window.renderDiario === 'function', 'diario');
 }
 
 async function carregarModulosEvolucao() {
@@ -28,15 +50,30 @@ async function carregarModulosEvolucao() {
 async function init() {
   await carregarConfiguracaoEmpresa();
   document.title = `${EMPRESA.nome} | ArvoreSer Saúde Corporativa`;
-  const companyName = document.getElementById("companyName"); if(companyName) companyName.textContent = EMPRESA.nome;
-  await carregarDadosEmpresa(); await carregarModulosEvolucao();
-  renderDashboard(); renderList(); renderPerson(); renderCharts();
+  const companyName = document.getElementById('companyName');
+  if(companyName) companyName.textContent = EMPRESA.nome;
+
+  await carregarDadosEmpresa();
+  await garantirModulosEssenciais();
+  await carregarModulosEvolucao();
+
+  renderDashboard();
+  renderList();
+  renderPerson();
+  renderCharts();
+
   if(typeof window.renderEvolucaoRegioes1Mes === 'function') window.renderEvolucaoRegioes1Mes();
   if(typeof window.renderEvolucaoEstresse1Mes === 'function') window.renderEvolucaoEstresse1Mes();
   if(typeof window.renderEvolucaoInterferencia1Mes === 'function') window.renderEvolucaoInterferencia1Mes();
-  preencherFiltroRegioes(); renderBiblioteca(); renderExerciciosAplicados(); renderDiario();
+
+  preencherFiltroRegioes();
+  renderBiblioteca();
+  renderExerciciosAplicados();
+  renderDiario();
 }
+
 init().catch(error => {
   console.error(error);
-  document.body.innerHTML = `<div style="font-family:Arial,sans-serif;padding:40px;max-width:760px;margin:auto"><h1>Não foi possível abrir a empresa</h1><p>${esc(error.message)}</p><p>Confirme a configuração da empresa e a implantação do Apps Script.</p></div>`;
+  const escapar = typeof window.esc === 'function' ? window.esc : (v => String(v ?? ''));
+  document.body.innerHTML = `<div style="font-family:Arial,sans-serif;padding:40px;max-width:760px;margin:auto"><h1>Não foi possível abrir a empresa</h1><p>${escapar(error.message)}</p><p>Confirme a configuração da empresa e a implantação do Apps Script.</p></div>`;
 });
