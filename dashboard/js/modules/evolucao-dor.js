@@ -41,23 +41,27 @@
       }
       .evolucao-dor-status-card.melhoraram .numero{color:#187900}
       .evolucao-dor-status-card.mantiveram .numero{color:#667085}
-      .evolucao-dor-status-card.aumentaram .numero{color:#fd3105}
-      .evolucao-dor-contexto{
-        margin-top:14px;
-        padding:14px 16px;
-        border-radius:14px;
-        background:#edf8ea;
-        border:1px solid rgba(24,121,0,.16);
-        color:#064001;
-        font-size:13px;
-        line-height:1.55;
+      .evolucao-dor-status-card.aumentaram{
+        border-color:rgba(253,49,5,.35);
       }
-      .evolucao-dor-contexto strong{font-weight:800}
-      .evolucao-dor-contexto .contexto-secundario{
+      .evolucao-dor-status-card.aumentaram .numero{color:#fd3105}
+      .evolucao-dor-status-card.aumentaram .gl-inline{
         display:block;
-        margin-top:5px;
-        color:#475467;
+        margin-top:10px;
+        padding-top:10px;
+        border-top:1px solid rgba(253,49,5,.16);
+        color:#7a2412;
         font-size:12px;
+        line-height:1.45;
+        font-weight:700;
+      }
+      .evolucao-dor-rodape{
+        margin-top:14px;
+        padding-top:12px;
+        border-top:1px dashed rgba(24,121,0,.28);
+        color:#667085;
+        font-size:12px;
+        line-height:1.55;
       }
       @media(max-width:760px){
         .evolucao-dor-status{grid-template-columns:1fr}
@@ -90,13 +94,16 @@
       chartBox.parentNode.insertBefore(statusBox, chartBox);
     }
 
-    let contexto = document.getElementById('evolucaoDorContexto');
-    if(!contexto){
-      contexto = document.createElement('div');
-      contexto.id = 'evolucaoDorContexto';
-      contexto.className = 'evolucao-dor-contexto';
-      notaEl.insertAdjacentElement('afterend', contexto);
+    let rodape = document.getElementById('evolucaoDorRodape');
+    if(!rodape){
+      rodape = document.createElement('div');
+      rodape.id = 'evolucaoDorRodape';
+      rodape.className = 'evolucao-dor-rodape';
+      notaEl.insertAdjacentElement('afterend', rodape);
     }
+
+    const contextoAntigo = document.getElementById('evolucaoDorContexto');
+    if(contextoAntigo) contextoAntigo.remove();
 
     if(!comparativo.totalComparaveis || comparativo.mediaInicial === null || comparativo.media1Mes === null){
       inicialEl.textContent = '—';
@@ -105,8 +112,8 @@
       variacaoEl.className = 'v';
       statusBox.innerHTML = '';
       notaEl.textContent = 'Ainda não há registros suficientes para comparar a evolução da dor.';
-      contexto.textContent = '';
-      contexto.style.display = 'none';
+      rodape.textContent = '';
+      rodape.style.display = 'none';
       if(evolucaoDorChart){ evolucaoDorChart.destroy(); evolucaoDorChart = null; }
       return;
     }
@@ -146,6 +153,10 @@
       variacaoEl.className = 'v aumento';
     }
 
+    const textoGl = aumentaram.length
+      ? `${aumentaramComPercepcaoMelhora.length} relataram que os exercícios de GL melhoraram suas dores.`
+      : 'Nenhum colaborador apresentou aumento da nota de dor neste comparativo.';
+
     statusBox.innerHTML = `
       <div class="evolucao-dor-status-card melhoraram">
         <span class="numero">${melhoraram.length}</span>
@@ -158,23 +169,14 @@
       <div class="evolucao-dor-status-card aumentaram">
         <span class="numero">${aumentaram.length}</span>
         <span class="rotulo">Aumentaram a nota de dor</span>
+        <span class="gl-inline">${textoGl}</span>
       </div>
     `;
 
     notaEl.textContent = `${comparativo.totalComparaveis} dos ${comparativo.totalReavaliados} reavaliados possuem nota comparável nos dois momentos. Notas 0/10 são consideradas no cálculo.`;
 
-    contexto.style.display = 'block';
-    if(aumentaram.length){
-      contexto.innerHTML = `
-        <strong>${aumentaramComPercepcaoMelhora.length} dos ${aumentaram.length} colaboradores que aumentaram a nota de dor relataram que os exercícios de GL melhoraram suas dores.</strong>
-        <span class="contexto-secundario">A intensidade da dor é uma medida subjetiva e pode variar conforme o momento, a rotina e outros fatores. Por isso, a evolução é interpretada em conjunto com a percepção de benefício da GL e os demais indicadores do acompanhamento.</span>
-      `;
-    } else {
-      contexto.innerHTML = `
-        <strong>Nenhum colaborador apresentou aumento da nota de dor neste comparativo.</strong>
-        <span class="contexto-secundario">A evolução deve continuar sendo interpretada em conjunto com a percepção de benefício da GL e os demais indicadores do acompanhamento.</span>
-      `;
-    }
+    rodape.style.display = 'block';
+    rodape.textContent = 'A intensidade da dor é uma medida subjetiva e pode variar conforme o momento, a rotina e outros fatores. Por isso, a evolução é interpretada em conjunto com a percepção de benefício da GL e os demais indicadores do acompanhamento.';
 
     if(evolucaoDorChart) evolucaoDorChart.destroy();
 
