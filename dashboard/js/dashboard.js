@@ -56,7 +56,7 @@ async function carregarModulosEvolucao() {
   await carregarScriptModulo('js/modules/evolucao-interferencia.js?v=20260817-2304','data-modulo','evolucao-interferencia');
   await carregarScriptModulo('js/modules/evolucao-gl.js?v=20260817-2328','data-modulo','evolucao-gl');
   await carregarScriptModulo('js/modules/setor-reavaliacao.js?v=20260817-2358','data-modulo','setor-reavaliacao');
-  await carregarScriptModulo('js/modules/evolucao-click-nomes.js?v=20260818-0015','data-modulo','evolucao-click-nomes');
+  await carregarScriptModulo('js/modules/evolucao-click-nomes.js?v=20260818-0018','data-modulo','evolucao-click-nomes');
 }
 
 function renderResumoComparativo1Mes(){
