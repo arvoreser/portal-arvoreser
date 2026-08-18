@@ -2,11 +2,30 @@
 (function(){
   let chart=null;
 
-  // Usa o mesmo parser/categorização já adotado no dashboard principal.
   function regioes(v){
     if(typeof regions === 'function') return regions(v);
     const s=String(v??'').trim();
     return s ? s.split(/[,;|\/]+/).map(x=>x.trim()).filter(Boolean) : [];
+  }
+
+  function ocultarGraficoAntigo(){
+    const canvas=document.getElementById('regChart');
+    if(!canvas)return;
+    let alvo=canvas.parentElement;
+    while(alvo && alvo!==document.body){
+      const texto=String(alvo.textContent||'').toLowerCase();
+      if(texto.includes('regiões corporais mais acometidas') || texto.includes('regioes corporais mais acometidas')) break;
+      alvo=alvo.parentElement;
+    }
+    if(alvo && alvo!==document.body){
+      alvo.style.display='none';
+      const pai=alvo.parentElement;
+      if(pai){
+        [...pai.children].forEach(irmao=>{
+          if(irmao!==alvo && irmao.querySelector && irmao.querySelector('#setorChart')) irmao.style.gridColumn='1 / -1';
+        });
+      }
+    }
   }
 
   function dados(){
@@ -17,7 +36,6 @@
     iniciais.forEach(i=>{
       const r=mapa.get(String(i.id??'').trim());
       if(!r)return;
-      // DATA.records é normalizado por normalizeRow(): a região inicial fica em i.regiao.
       pares.push({inicial:regioes(i.regiao),mes1:regioes(r['Região da dor'])});
     });
     return {total:iniciais.length,reavaliados:reavs.filter(r=>String(r.ID??'').trim()).length,pares};
@@ -34,6 +52,7 @@
   }
 
   window.renderEvolucaoRegioes1Mes=function(){
+    ocultarGraficoAntigo();
     if(!bloco())return;const d=dados();
     document.getElementById('evRegCobertura').textContent=`Reavaliados: ${d.reavaliados} de ${d.total}`;
     const canon=new Map();
