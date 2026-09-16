@@ -51,7 +51,7 @@ async function garantirModulosEssenciais() {
 
 async function carregarModulosEvolucao() {
   await carregarScriptModulo('js/modules/evolucao-dor.js?v=20260817-2249','data-modulo','evolucao-dor');
-  await carregarScriptModulo('js/modules/evolucao-regioes.js?v=20260817-2358','data-modulo','evolucao-regioes');
+  await carregarScriptModulo('js/modules/evolucao-regioes.js?v=20260916-1545','data-modulo','evolucao-regioes');
   await carregarScriptModulo('js/modules/evolucao-estresse.js?v=20260817-2258','data-modulo','evolucao-estresse');
   await carregarScriptModulo('js/modules/evolucao-interferencia.js?v=20260817-2304','data-modulo','evolucao-interferencia');
   await carregarScriptModulo('js/modules/evolucao-gl.js?v=20260817-2328','data-modulo','evolucao-gl');
@@ -60,27 +60,24 @@ async function carregarModulosEvolucao() {
 }
 
 function renderResumoComparativo1Mes(){
-  const reavs=Array.isArray(DATA.reavaliacao1MesRows)?DATA.reavaliacao1MesRows.filter(r=>String(r.ID??'').trim()):[];
-  if(!reavs.length) return;
+  const mes1=Array.isArray(DATA.reavaliacao1MesRows)?DATA.reavaliacao1MesRows.filter(r=>String(r.ID??'').trim()):[];
+  const mes2=Array.isArray(DATA.reavaliacao2MesRows)?DATA.reavaliacao2MesRows.filter(r=>String(r.ID??'').trim()):[];
+  if(!mes1.length && !mes2.length) return;
 
   const norm=v=>String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase();
   const temDor=v=>{ const x=norm(v); return x==='sim'||x.startsWith('sim '); };
   const nota=v=>{ const m=String(v??'').replace(',','.').match(/-?\d+(?:\.\d+)?/); if(!m)return 0; const n=Number(m[0]); return Number.isFinite(n)?n:0; };
-
-  const comDor1=reavs.filter(r=>temDor(r['Resposta original sobre dor'])).length;
-  const notasSintomaticos=reavs.filter(r=>temDor(r['Resposta original sobre dor'])).map(r=>nota(r['Nota da dor'])).filter(n=>n>0);
-  const media1=notasSintomaticos.length ? (notasSintomaticos.reduce((a,b)=>a+b,0)/notasSintomaticos.length).toFixed(1).replace('.',',') : '—';
-  const dorAlta1=reavs.filter(r=>nota(r['Nota da dor'])>=7).length;
-
-  const valor=(inicial,mes1)=>`<span>${inicial}</span><span style="color:#98a2b3;font-weight:600;margin:0 8px">/</span><span style="color:#187900">${mes1}</span>`;
-
-  const comDor=document.getElementById('comDorMetric');
-  const media=document.getElementById('mediaDorMetric');
-  const alta=document.getElementById('prioritariosMetric');
-
-  if(comDor) comDor.innerHTML=valor(DATA.summary.comDor,comDor1);
-  if(media) media.innerHTML=valor(DATA.summary.dorMedia,media1);
-  if(alta) alta.innerHTML=valor(DATA.summary.prioritarios,dorAlta1);
+  const metricas=rows=>{
+    const sint=rows.filter(r=>temDor(r['Resposta original sobre dor']));
+    const notas=sint.map(r=>nota(r['Nota da dor'])).filter(n=>n>0);
+    return {comDor:sint.length,media:notas.length?(notas.reduce((a,b)=>a+b,0)/notas.length).toFixed(1).replace('.',','):'—',alta:rows.filter(r=>nota(r['Nota da dor'])>=7).length};
+  };
+  const m1=metricas(mes1),m2=metricas(mes2);
+  const valor=(inicial,v1,v2)=>`<span title="Avaliação inicial">${inicial}</span><span style="color:#98a2b3;font-weight:600;margin:0 7px">/</span><span title="1 mês" style="color:#187900">${mes1.length?v1:'—'}</span><span style="color:#98a2b3;font-weight:600;margin:0 7px">/</span><span title="2 meses" style="color:#2563eb">${mes2.length?v2:'—'}</span>`;
+  const comDor=document.getElementById('comDorMetric'),media=document.getElementById('mediaDorMetric'),alta=document.getElementById('prioritariosMetric');
+  if(comDor) comDor.innerHTML=valor(DATA.summary.comDor,m1.comDor,m2.comDor);
+  if(media) media.innerHTML=valor(DATA.summary.dorMedia,m1.media,m2.media);
+  if(alta) alta.innerHTML=valor(DATA.summary.prioritarios,m1.alta,m2.alta);
 }
 
 async function init() {
@@ -88,24 +85,20 @@ async function init() {
   document.title = `${EMPRESA.nome} | ArvoreSer Saúde Corporativa`;
   const companyName = document.getElementById('companyName');
   if(companyName) companyName.textContent = EMPRESA.nome;
-
   await carregarDadosEmpresa();
   await garantirModulosEssenciais();
   await carregarModulosEvolucao();
-
   renderDashboard();
   renderResumoComparativo1Mes();
   renderList();
   renderPerson();
   renderCharts();
   if(typeof window.ativarCliqueReavaliacaoSetor === 'function') window.ativarCliqueReavaliacaoSetor();
-
   if(typeof window.renderEvolucaoRegioes1Mes === 'function') window.renderEvolucaoRegioes1Mes();
   if(typeof window.renderEvolucaoEstresse1Mes === 'function') window.renderEvolucaoEstresse1Mes();
   if(typeof window.renderEvolucaoInterferencia1Mes === 'function') window.renderEvolucaoInterferencia1Mes();
   if(typeof window.renderEvolucaoGL1Mes === 'function') window.renderEvolucaoGL1Mes();
   if(typeof window.ativarCliquesNomesEvolucao === 'function') window.ativarCliquesNomesEvolucao();
-
   preencherFiltroRegioes();
   renderBiblioteca();
   renderExerciciosAplicados();
