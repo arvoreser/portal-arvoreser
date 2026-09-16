@@ -64,6 +64,7 @@ function processarDadosRecebidos(dados) {
   const colaboradores = Array.isArray(dados.colaboradores) ? dados.colaboradores : [];
   const avaliacao = Array.isArray(dados.avaliacao) ? dados.avaliacao : [];
   const reavaliacao1Mes = Array.isArray(dados.reavaliacao1Mes) ? dados.reavaliacao1Mes : [];
+  const reavaliacao2Mes = Array.isArray(dados.reavaliacao2Mes) ? dados.reavaliacao2Mes : [];
   const observacoes = Array.isArray(dados.observacoes) ? dados.observacoes : [];
   const diario = Array.isArray(dados.diario) ? dados.diario : [];
   const biblioteca = Array.isArray(dados.biblioteca) ? dados.biblioteca : [];
@@ -75,6 +76,7 @@ function processarDadosRecebidos(dados) {
   DATA.diarioRows = diario;
   DATA.exerciciosAplicadosRows = exerciciosAplicados;
   DATA.reavaliacao1MesRows = reavaliacao1Mes;
+  DATA.reavaliacao2MesRows = reavaliacao2Mes;
   DATA.obsRows = observacoes;
 
   const avalById = {};
