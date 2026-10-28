@@ -30,7 +30,7 @@ const previous=Chart.getChart(canvas);if(previous)previous.destroy();
 new Chart(canvas,{type,data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:10}}},...opts,onClick:click?(e,els)=>{if(els.length)click(els[0])}:undefined}});
 }
 function height(id,n){const el=document.getElementById(id)?.parentElement;if(el)el.style.height=n+'px'}
-function note(id,t){const el=document.getElementById(id);if(el)el.textContent=t}
+function note(id,t){const el=document.getElementById(id);if(!el)return;if(/Cobertura$/.test(id)){el.textContent='';el.style.display='none';return}el.textContent=t}
 function coverage(periods,fn){return periods.map((r,i)=>P[i]+': '+eligible(r,fn).length+' respostas válidas').join(' • ')}
 function status(id,periods,fn,better){
 const el=document.getElementById(id);if(!el)return;let latest=-1,prior=-1;
@@ -173,6 +173,7 @@ const interest=periods.map(r=>eligible(r,x=>x.interest)),last=[3,2,1].find(i=>in
 const area=document.getElementById('interesseAtendimentoSection');if(area){let badge=area.querySelector('.tema-interesse');if(!badge){badge=document.createElement('p');badge.className='tema-interesse';area.querySelector('h3')?.after(badge)}badge.textContent=last?'Último período com respostas: '+P[last]+' · '+interest[last].filter(r=>r.interest===0).length+' interessados entre '+interest[last].length+' respostas válidas.':'Sem respostas válidas.'}
 document.querySelectorAll('.evolucao-dor-sub,.evolucao-sono-sub,.evolucao-estresse-sub,.evolucao-interferencia-sub,.ev-gl-sub,.ev-reg-sub').forEach(el=>el.textContent='Comparação entre avaliações disponíveis, incluindo o 3º mês.');
 organizarCartoes();
+document.querySelectorAll('[id$="Cobertura"]').forEach(el=>{el.textContent='';el.style.display='none'});
 resumoDoisUltimosMeses();
 };
 })();
