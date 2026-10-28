@@ -71,6 +71,20 @@ const executive=grid?.querySelector('.dashboard-evolution-section');if(executive
 if(grid&&!grid.querySelector('.section'))grid.style.display='none';
 const css=document.createElement('style');css.textContent='#temaGrupos{display:grid;gap:25px;margin-top:22px}.tema-grupo{border-top:2px solid #dbead7;padding-top:16px}.tema-grupo>h2{color:#064001;font-size:20px;margin:0 0 16px}.tema-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}.tema-grid>.section{min-width:0;margin:0!important;grid-column:auto!important}.tema-grid .evolucao-dor-metricas{grid-template-columns:repeat(2,minmax(0,1fr))!important}.tema-status{border:1px solid #e2eddf;background:#f8fbf6;border-radius:12px;padding:12px;display:flex;flex-direction:column}.tema-status strong{font-size:24px;color:#064001}.tema-status span{font-size:11px;color:#667085}@media(max-width:1100px){.tema-grid{grid-template-columns:1fr}}@media(max-width:600px){.tema-grupo>h2{font-size:17px}.tema-grid .evolucao-dor-status,.tema-grid .evolucao-sono-status,.tema-grid .evolucao-estresse-status,.tema-grid .evolucao-interferencia-status{grid-template-columns:repeat(3,minmax(0,1fr))}.tema-status{padding:8px}.tema-status strong{font-size:19px}}';document.head.appendChild(css);
 }
+function organizarCartoes(){
+ const root=document.getElementById('temaGrupos');if(!root)return;
+ const groups=[['Dor','01 · Dor e impacto funcional'],['Saude','02 · Saúde e percepção'],['Queixas','03 · Distribuição das queixas'],['Demandas','04 · Demandas e acompanhamento']];
+ const cards=[];
+ groups.forEach(([id,title])=>{const group=document.getElementById('tema'+id);if(!group)return;[...group.children].forEach(el=>{if(!el.classList.contains('section'))return;let tag=el.querySelector('.tema-etiqueta');if(!tag){tag=document.createElement('div');tag.className='tema-etiqueta';el.insertBefore(tag,el.firstChild)}tag.textContent=title;cards.push(el)})});
+ if(!cards.length)return;
+ root.replaceChildren();
+ const left=document.createElement('div'),right=document.createElement('div');left.className='tema-coluna';right.className='tema-coluna';root.append(left,right);
+ // A coluna mais curta recebe o próximo cartão; os gráficos não ficam presos a linhas.
+ let heights=[0,0];
+ cards.forEach((card,i)=>{const h=Math.max(card.getBoundingClientRect().height,card.offsetHeight,340);const side=heights[0]<=heights[1]?0:1;[left,right][side].appendChild(card);heights[side]+=h+16});
+ root.querySelectorAll('canvas').forEach(canvas=>{const chart=Chart.getChart(canvas);if(chart)chart.resize()});
+}
+
 window.renderGraficosTematicos=function(){
 const periods=data();layout();
 const mean=periods.map(r=>{const a=eligible(r,x=>x.score);return a.length?a.reduce((s,x)=>s+x.score,0)/a.length:null});
@@ -91,5 +105,6 @@ stack('interesseAtendimentoSectionChart',periods,r=>r.interest,['Sim','Não'],['
 const interest=periods.map(r=>eligible(r,x=>x.interest)),last=[3,2,1].find(i=>interest[i].length);
 const area=document.getElementById('interesseAtendimentoSection');if(area){let badge=area.querySelector('.tema-interesse');if(!badge){badge=document.createElement('p');badge.className='tema-interesse';area.querySelector('h3')?.after(badge)}badge.textContent=last?'Último período com respostas: '+P[last]+' · '+interest[last].filter(r=>r.interest===0).length+' interessados entre '+interest[last].length+' respostas válidas.':'Sem respostas válidas.'}
 document.querySelectorAll('.evolucao-dor-sub,.evolucao-sono-sub,.evolucao-estresse-sub,.evolucao-interferencia-sub,.ev-gl-sub,.ev-reg-sub').forEach(el=>el.textContent='Comparação entre avaliações disponíveis, incluindo o 3º mês.');
+organizarCartoes();
 };
 })();
