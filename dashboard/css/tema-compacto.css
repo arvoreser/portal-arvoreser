@@ -15,3 +15,37 @@
 #temaGrupos .ev-reg-chartbox,#temaGrupos .chartbox{height:360px!important}
 #temaGrupos .tema-faixa-unica .chartbox{height:380px!important}
 @media(max-width:850px){#temaGrupos .tema-faixa-grid{grid-template-columns:minmax(0,1fr)!important}#temaGrupos .evolucao-dor-metricas{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+
+
+/* Modelos aprovados: mapa de calor setorial e cartões de evolução por região. */
+#temaGrupos .tema-faixa:has(#setorChart) .chartbox,
+#temaGrupos .tema-faixa:has(#evRegChart) .chartbox,
+#temaGrupos #evRegChart,
+#temaGrupos #setorChart{height:auto!important;min-height:0!important}
+#temaGrupos .tema-viz{width:100%;font-family:inherit}
+#temaGrupos .tema-viz-descricao{font-size:13px;color:#536575;margin:0 0 16px;line-height:1.5}
+#temaGrupos .tema-viz-nota{font-size:12px;color:#657382;margin:12px 0 0;line-height:1.5}
+#temaGrupos .tema-heat-scroll{overflow-x:auto;padding-bottom:4px}
+#temaGrupos .tema-heat{display:grid;grid-template-columns:minmax(150px,1.55fr) repeat(4,minmax(100px,1fr));gap:6px;min-width:640px;align-items:stretch}
+#temaGrupos .tema-heat-head{font-size:12px;font-weight:700;color:#064001;text-align:center;padding:10px 4px;background:#edf8ea;border-radius:8px}
+#temaGrupos .tema-heat-label{font-size:13px;font-weight:650;display:flex;align-items:center;padding:8px 10px;min-height:42px;overflow-wrap:anywhere}
+#temaGrupos .tema-heat-cell{border:0;border-radius:8px;background:var(--heat);color:var(--heat-text);min-height:48px;display:flex;align-items:center;justify-content:center;gap:4px;flex-direction:column;font-size:17px;font-weight:800;cursor:pointer;transition:filter .15s,transform .15s}
+#temaGrupos .tema-heat-cell small{font-size:10px;font-weight:500;opacity:.85}
+#temaGrupos .tema-heat-cell:hover:not(:disabled){filter:brightness(.94);transform:translateY(-1px)}
+#temaGrupos .tema-heat-cell:disabled{cursor:default;opacity:.65}
+#temaGrupos .tema-reg-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+#temaGrupos .tema-reg-card{min-width:0;border:1px solid #dce9dc;background:#fff;border-radius:15px;padding:16px;box-shadow:0 3px 12px #06400108}
+#temaGrupos .tema-reg-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+#temaGrupos .tema-reg-top strong{color:#064001;font-size:15px}
+#temaGrupos .tema-reg-current{font-size:23px;font-weight:800;color:#187900;white-space:nowrap}
+#temaGrupos .tema-reg-meta{font-size:11px;color:#657382;margin-top:5px}
+#temaGrupos .tema-reg-spark{display:block;width:100%;height:90px;margin:8px 0}
+#temaGrupos .tema-reg-periodos{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+#temaGrupos .tema-reg-periodos button{border:1px solid #e2ece1;border-radius:8px;background:#f9fcf8;padding:7px 2px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:#4c5c52;cursor:pointer;min-width:0}
+#temaGrupos .tema-reg-periodos button span{width:8px;height:8px;border-radius:50%}
+#temaGrupos .tema-reg-periodos button b{font-size:13px;color:#064001}
+#temaGrupos .tema-reg-periodos button small{font-size:9px}
+#temaGrupos .tema-reg-periodos button:hover:not(:disabled){background:#edf8ea;border-color:#a5d4a1}
+#temaGrupos .tema-reg-periodos button:disabled{opacity:.45;cursor:default}
+@media(max-width:1150px){#temaGrupos .tema-reg-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){#temaGrupos .tema-reg-grid{grid-template-columns:minmax(0,1fr)}#temaGrupos .tema-reg-card{padding:12px}}
