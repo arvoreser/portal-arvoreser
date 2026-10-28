@@ -49,3 +49,20 @@
 #temaGrupos .tema-reg-periodos button:disabled{opacity:.45;cursor:default}
 @media(max-width:1150px){#temaGrupos .tema-reg-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:650px){#temaGrupos .tema-reg-grid{grid-template-columns:minmax(0,1fr)}#temaGrupos .tema-reg-card{padding:12px}}
+
+
+/* Correção definitiva: conteúdo HTML novo ocupa altura natural, sem canvas legado. */
+#temaGrupos .tema-faixa .tema-viz-container,
+#temaGrupos .tema-faixa .ev-reg-chartbox.tema-viz-container,
+#temaGrupos .tema-faixa .chartbox.tema-viz-container,
+#temaGrupos .tema-faixa-unica .chartbox.tema-viz-container{
+ height:auto!important;min-height:0!important;max-height:none!important;
+ overflow:visible!important;position:relative!important;
+ display:block!important;contain:none!important;
+}
+#temaGrupos .tema-viz-container .tema-viz{display:block!important;position:relative!important;height:auto!important;min-height:0!important;overflow:visible!important}
+#temaGrupos .tema-reg-grid{position:relative;align-items:stretch}
+#temaGrupos .tema-reg-card{position:relative;overflow:hidden}
+#temaGrupos .tema-reg-spark{max-height:90px;overflow:visible}
+#temaGrupos .tema-faixa{clear:both;overflow:visible}
+#temaGrupos .tema-faixa-grid>.section{height:auto!important;max-height:none!important;overflow:visible!important}
