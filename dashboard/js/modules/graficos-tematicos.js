@@ -131,12 +131,25 @@ function organizarCartoes(){
  root.replaceChildren();
  layout.forEach(group=>{
   const section=document.createElement('section');section.className='tema-faixa';
-  const heading=document.createElement('h2');heading.className='tema-faixa-titulo';heading.textContent=group.title;section.appendChild(heading);
+  // Cada cartão já tem seu título. Não repetir títulos numerados entre as linhas.
   const grid=document.createElement('div');grid.className='tema-faixa-grid'+(group.ids.length===1?' tema-faixa-unica':'');
   group.ids.forEach(id=>{const card=cards.get(id);if(!card)return;card.querySelectorAll('.tema-etiqueta').forEach(x=>x.remove());grid.appendChild(card)});
   if(grid.children.length){section.appendChild(grid);root.appendChild(section)}
  });
  root.querySelectorAll('canvas').forEach(canvas=>{const chart=Chart.getChart(canvas);if(chart)chart.resize()});
+}
+
+function resumoDoisUltimosMeses(){
+ const ids=['comDorMetric','mediaDorMetric','prioritariosMetric'];
+ ids.forEach(id=>{
+  const el=document.getElementById(id);if(!el||el.dataset.resumoCompacto==='true')return;
+  const spans=[...el.querySelectorAll('span[title],span[data-third-month]')];
+  const vals=spans.map(x=>str(x.textContent));
+  if(vals.length<4)return;
+  const rows=P.map((p,i)=>'<div class="tema-resumo-tooltip-row"><span style="color:'+C[i]+'">'+escape(p)+'</span><strong>'+escape(vals[i])+'</strong></div>').join('');
+  el.dataset.resumoCompacto='true';
+  el.innerHTML='<span class="tema-resumo-hover" tabindex="0" aria-label="2º mês: '+escape(vals[2])+'. 3º mês: '+escape(vals[3])+'. Passe o mouse ou selecione para ver as quatro avaliações."><span class="tema-resumo-values"><span style="color:'+C[2]+'">'+escape(vals[2])+'</span><span class="tema-resumo-sep">/</span><span style="color:'+C[3]+'">'+escape(vals[3])+'</span></span><span class="tema-resumo-tooltip" role="tooltip"><span class="tema-resumo-tooltip-title">Histórico completo</span>'+rows+'</span></span>';
+ });
 }
 
 window.renderGraficosTematicos=function(){
@@ -160,5 +173,6 @@ const interest=periods.map(r=>eligible(r,x=>x.interest)),last=[3,2,1].find(i=>in
 const area=document.getElementById('interesseAtendimentoSection');if(area){let badge=area.querySelector('.tema-interesse');if(!badge){badge=document.createElement('p');badge.className='tema-interesse';area.querySelector('h3')?.after(badge)}badge.textContent=last?'Último período com respostas: '+P[last]+' · '+interest[last].filter(r=>r.interest===0).length+' interessados entre '+interest[last].length+' respostas válidas.':'Sem respostas válidas.'}
 document.querySelectorAll('.evolucao-dor-sub,.evolucao-sono-sub,.evolucao-estresse-sub,.evolucao-interferencia-sub,.ev-gl-sub,.ev-reg-sub').forEach(el=>el.textContent='Comparação entre avaliações disponíveis, incluindo o 3º mês.');
 organizarCartoes();
+resumoDoisUltimosMeses();
 };
 })();
