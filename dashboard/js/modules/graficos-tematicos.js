@@ -167,7 +167,22 @@ const latest=[3,2,1].find(i=>eligible(periods[i],r=>r.gl).length);const glCards=
 cartoesRegioes(periods);
 mapaSetores(periods);
 const sec=document.getElementById('setorChart')?.closest('.section');if(sec){const h=sec.querySelector('h3');if(h)h.textContent='Evolução da dor por setor';const hint=sec.querySelector('.click-hint');if(hint)hint.textContent='Percentual com dor dentro de cada setor, por período. Clique para consultar nomes.'}
-const reasons=periods.map(r=>r.filter(x=>x.reason));horizontal('motivosEstresseSectionChart',reasons,r=>[r.reason],'',false);const reasonChart=Chart.getChart(document.getElementById('motivosEstresseSectionChart'));if(reasonChart){reasonChart.data.datasets=reasonChart.data.datasets.filter((d,i)=>reasons[i].length>0);reasonChart.update('none')}const reasonSection=document.getElementById('motivosEstresseSection');if(reasonSection){const p=reasonSection.querySelector('.third-content p');if(p)p.textContent='Somente períodos em que houve respostas válidas. Campos vazios não significam ausência de estresse.'}
+const reasons=periods.map(rows=>rows.filter(r=>r.reason));
+const reasonPeriods=[0,1,2,3].filter(i=>reasons[i].length>0);
+const reasonLabels=[...new Set(reasonPeriods.flatMap(i=>reasons[i].map(r=>r.reason)))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+const reasonDatasets=reasonPeriods.map(i=>({
+ label:P[i],periodIndex:i,backgroundColor:C[i],borderRadius:4,categoryPercentage:.75,
+ data:reasonLabels.map(label=>reasons[i].filter(r=>r.reason===label).length)
+}));
+draw('motivosEstresseSectionChart','bar',reasonLabels,reasonDatasets,{
+ indexAxis:'y',scales:{x:{beginAtZero:true,ticks:{precision:0}},y:{grid:{display:false}}},
+ plugins:{tooltip:{callbacks:{label:ctx=>P[ctx.dataset.periodIndex]+': '+ctx.parsed.x+' colaborador(es)'}}}
+},hit=>{
+ const period=reasonDatasets[hit.datasetIndex].periodIndex;
+ const reason=reasonLabels[hit.index];
+ details(P[period]+' • '+reason,reasons[period].filter(r=>r.reason===reason));
+});
+height('motivosEstresseSectionChart',Math.max(300,reasonLabels.length*55+90));const reasonSection=document.getElementById('motivosEstresseSection');if(reasonSection){const p=reasonSection.querySelector('.third-content p');if(p)p.textContent='Somente períodos em que houve respostas válidas. Campos vazios não significam ausência de estresse.'}
 stack('interesseAtendimentoSectionChart',periods,r=>r.interest,['Sim','Não'],['#17FA03','#FF8200'],'');
 const interest=periods.map(r=>eligible(r,x=>x.interest)),last=[3,2,1].find(i=>interest[i].length);
 const area=document.getElementById('interesseAtendimentoSection');if(area){let badge=area.querySelector('.tema-interesse');if(!badge){badge=document.createElement('p');badge.className='tema-interesse';area.querySelector('h3')?.after(badge)}badge.textContent=last?'Último período com respostas: '+P[last]+' · '+interest[last].filter(r=>r.interest===0).length+' interessados entre '+interest[last].length+' respostas válidas.':'Sem respostas válidas.'}
