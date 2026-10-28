@@ -73,15 +73,26 @@ const css=document.createElement('style');css.textContent='#temaGrupos{display:g
 }
 function organizarCartoes(){
  const root=document.getElementById('temaGrupos');if(!root)return;
- const groups=[['Dor','01 · Dor e impacto funcional'],['Saude','02 · Saúde e percepção'],['Queixas','03 · Distribuição das queixas'],['Demandas','04 · Demandas e acompanhamento']];
- const cards=[];
- groups.forEach(([id,title])=>{const group=document.getElementById('tema'+id);if(!group)return;[...group.children].forEach(el=>{if(!el.classList.contains('section'))return;let tag=el.querySelector('.tema-etiqueta');if(!tag){tag=document.createElement('div');tag.className='tema-etiqueta';el.insertBefore(tag,el.firstChild)}tag.textContent=title;cards.push(el)})});
- if(!cards.length)return;
+ const layout=[
+  {title:'01 · Evolução da dor',ids:['evolucaoDorSection']},
+  {title:'02 · Evolução da dor por setor',ids:['setorChart']},
+  {title:'03 · Dor por região corporal',ids:['evolucaoRegioesSection']},
+  {title:'04 · Interferência da dor no trabalho',ids:['evolucaoInterferenciaSection']},
+  {title:'05 · Saúde e percepção',ids:['evolucaoSonoSection','evolucaoEstresseSection']},
+  {title:'06 · Estresse e percepção de melhora',ids:['motivosEstresseSection','evolucaoGLSection']},
+  {title:'07 · Interesse em atendimento',ids:['interesseAtendimentoSection']}
+ ];
+ const cards=new Map();
+ root.querySelectorAll('.section').forEach(el=>{if(el.id)cards.set(el.id,el)});
+ const sector=document.getElementById('setorChart')?.closest('.section');if(sector)cards.set('setorChart',sector);
  root.replaceChildren();
- const left=document.createElement('div'),right=document.createElement('div');left.className='tema-coluna';right.className='tema-coluna';root.append(left,right);
- // A coluna mais curta recebe o próximo cartão; os gráficos não ficam presos a linhas.
- let heights=[0,0];
- cards.forEach((card,i)=>{const h=Math.max(card.getBoundingClientRect().height,card.offsetHeight,340);const side=heights[0]<=heights[1]?0:1;[left,right][side].appendChild(card);heights[side]+=h+16});
+ layout.forEach(group=>{
+  const section=document.createElement('section');section.className='tema-faixa';
+  const heading=document.createElement('h2');heading.className='tema-faixa-titulo';heading.textContent=group.title;section.appendChild(heading);
+  const grid=document.createElement('div');grid.className='tema-faixa-grid'+(group.ids.length===1?' tema-faixa-unica':'');
+  group.ids.forEach(id=>{const card=cards.get(id);if(!card)return;card.querySelectorAll('.tema-etiqueta').forEach(x=>x.remove());grid.appendChild(card)});
+  if(grid.children.length){section.appendChild(grid);root.appendChild(section)}
+ });
  root.querySelectorAll('canvas').forEach(canvas=>{const chart=Chart.getChart(canvas);if(chart)chart.resize()});
 }
 
