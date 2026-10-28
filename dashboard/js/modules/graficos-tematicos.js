@@ -12,10 +12,10 @@ const gl=v=>category(v,{'sim':0,'nao muito':1,'nao':2});
 const regions=v=>str(v)?(typeof window.regions==='function'?window.regions(v):str(v).split(/[,;|\/]+/).map(s=>s.trim()).filter(Boolean)):[];
 const escape=v=>typeof window.esc==='function'?window.esc(v):str(v).replace(/[&<>"]/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]));
 function data(){
-const a=(DATA.records||[]).filter(r=>str(r.id)).map(r=>({id:str(r.id),nome:str(r.nome),setor:str(r.setor),pain:yes(r.tem_dor),score:score(r.nota_dor),sleep:sleep(r.sono),stress:stress(r.estresse),interference:interference(r.interfere),regions:regions(r.regiao)}));
+const a=(DATA.records||[]).filter(r=>str(r.id)).map(r=>({id:str(r.id),nome:str(r.nome),setor:str(r.setor),pain:str(r.tem_dor)?yes(r.tem_dor):null,score:score(r.nota_dor),sleep:sleep(r.sono),stress:stress(r.estresse),interference:interference(r.interfere),regions:regions(r.regiao)}));
 const periods=[a];
 for(let i=1;i<=3;i++){const map=new Map();(DATA['reavaliacao'+i+'MesRows']||[]).forEach(r=>{if(str(r.ID))map.set(str(r.ID),r)});
-periods.push([...map.values()].map(r=>({id:str(r.ID),nome:str(r['Nome completo']),setor:str(r.Setor),pain:yes(r['Resposta original sobre dor']),score:score(r['Nota da dor']),sleep:sleep(r.Sono),stress:stress(r.Estresse),interference:interference(r['Interfere no trabalho?']),regions:regions(r['Região da dor']),gl:gl(r['Exercicio de GL melhorou suas dores?']),reason:str(r['Motivo do Estresse']),interest:category(r['Você gostaria de ser atendido?'],{'sim':0,'nao':1})})))}
+periods.push([...map.values()].map(r=>({id:str(r.ID),nome:str(r['Nome completo']),setor:str(r.Setor),pain:str(r['Resposta original sobre dor'])?yes(r['Resposta original sobre dor']):null,score:score(r['Nota da dor']),sleep:sleep(r.Sono),stress:stress(r.Estresse),interference:interference(r['Interfere no trabalho?']),regions:regions(r['Região da dor']),gl:gl(r['Exercicio de GL melhorou suas dores?']),reason:str(r['Motivo do Estresse']),interest:category(r['Você gostaria de ser atendido?'],{'sim':0,'nao':1})})))}
 return periods;
 }
 const eligible=(rows,fn)=>rows.filter(r=>fn(r)!==null&&fn(r)!==undefined);
@@ -61,6 +61,41 @@ const datasets=P.map((p,i)=>({label:p,data:labels.map(l=>{const n=periods[i].fil
 draw(id,'bar',labels,datasets,{indexAxis:'y',scales:{x:{beginAtZero:true,max:percent?100:undefined,ticks:{callback:v=>percent?v+'%':v}},y:{grid:{display:false}}},plugins:{tooltip:{callbacks:{label:c=>{const i=c.datasetIndex,l=labels[c.dataIndex],n=periods[i].filter(r=>extract(r).includes(l)).length;return P[i]+': '+n+' ('+c.parsed.x.toFixed(percent?1:0)+(percent?'%':'')+')'}}}}},x=>details(P[x.datasetIndex]+' • '+labels[x.index],periods[x.datasetIndex].filter(r=>extract(r).includes(labels[x.index]))));
 height(id,Math.max(320,labels.length*70+90));note(footer,periods.map((r,i)=>P[i]+': '+r.length+' respondentes').join(' • '));
 }
+
+function substituirGrafico(id){
+ const canvas=document.getElementById(id);if(!canvas)return null;
+ const old=Chart.getChart(canvas);if(old)old.destroy();
+ canvas.style.display='none';
+ const parent=canvas.parentElement;if(!parent)return null;
+ parent.style.height='auto';parent.style.minHeight='0';
+ let panel=parent.querySelector('.tema-viz');if(!panel){panel=document.createElement('div');panel.className='tema-viz';parent.appendChild(panel)}
+ return panel;
+}
+function mapaSetores(periods){
+ const panel=substituirGrafico('setorChart');if(!panel)return;
+ const valid=periods.map(rows=>rows.filter(r=>r.setor&&r.pain!==null));
+ const names=[...new Set(valid.flatMap(rows=>rows.map(r=>r.setor)))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+ const values=names.map(name=>valid.map(rows=>{const set=rows.filter(r=>r.setor===name);const n=set.filter(r=>r.pain).length;return {n,base:set.length,pct:set.length?100*n/set.length:null,people:set.filter(r=>r.pain)}}));
+ panel.innerHTML='<p class="tema-viz-descricao">Percentual de respondentes que relataram dor em cada setor. Clique em uma célula para consultar os nomes.</p><div class="tema-heat-scroll"><div class="tema-heat"><div class="tema-heat-label tema-heat-head">Setor</div>'+P.map(p=>'<div class="tema-heat-head">'+escape(p)+'</div>').join('')+names.map((name,i)=>'<div class="tema-heat-label" title="'+escape(name)+'">'+escape(name)+'</div>'+values[i].map((v,j)=>'<button type="button" class="tema-heat-cell" data-r="'+i+'" data-p="'+j+'" style="--heat:'+ (v.pct===null?'#f2f4f5':v.pct>=75?'#13652d':v.pct>=50?'#369b51':v.pct>=25?'#8bd09c':'#d9f1df')+';--heat-text:'+(v.pct!==null&&v.pct>=50?'white':'#173c20')+'" '+(v.pct===null?'disabled':'')+' title="'+escape(name)+' · '+P[j]+': '+v.n+' de '+v.base+'">'+(v.pct===null?'—':Math.round(v.pct)+'%')+'<small>'+(v.base?'N='+v.base:'')+'</small></button>').join('')).join('')+'</div></div><p class="tema-viz-nota">Verde mais intenso indica maior percentual de relatos de dor. “—” indica ausência de respostas válidas, não 0%.</p>';
+ panel.querySelectorAll('.tema-heat-cell').forEach(b=>b.addEventListener('click',()=>{const i=Number(b.dataset.r),j=Number(b.dataset.p);details(P[j]+' · '+names[i]+' · com dor',values[i][j].people)}));
+}
+function cartoesRegioes(periods){
+ const panel=substituirGrafico('evRegChart');if(!panel)return;
+ const valid=periods.map(rows=>rows.filter(r=>r.pain===true));
+ const names=[...new Set(valid.flatMap(rows=>rows.flatMap(r=>r.regions)))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+ const values=names.map(name=>valid.map(rows=>{const people=rows.filter(r=>r.regions.includes(name));return {n:people.length,base:rows.length,pct:rows.length?100*people.length/rows.length:null,people}}));
+ const pointColor=C;
+ panel.innerHTML='<p class="tema-viz-descricao">Cada cartão acompanha uma região corporal nas quatro avaliações. Os percentuais consideram os respondentes que relataram dor.</p><div class="tema-reg-grid">'+names.map((name,i)=>{
+ const v=values[i],known=v.map((p,j)=>p.pct===null?null:{x:12+j*86,y:65-p.pct*.55}).filter(Boolean);
+ const poly=known.length>1?'<polyline points="'+known.map(p=>p.x+','+p.y).join(' ')+'" fill="none" stroke="#187900" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>':'';
+ const last=[3,2,1,0].find(j=>v[j].pct!==null),first=[0,1,2,3].find(j=>v[j].pct!==null);
+ const delta=last!==undefined&&first!==undefined?v[last].pct-v[first].pct:null;
+ return '<article class="tema-reg-card"><div class="tema-reg-top"><strong>'+escape(name)+'</strong><span class="tema-reg-current">'+(last===undefined?'Sem dados':Math.round(v[last].pct)+'%')+'</span></div><div class="tema-reg-meta">'+(delta===null?'Sem comparação':(delta>0?'+':'')+delta.toFixed(1).replace('.',',')+' p.p. · '+P[first]+' a '+P[last])+'</div><svg viewBox="0 0 286 80" class="tema-reg-spark" aria-label="Evolução de '+escape(name)+'"><line x1="8" x2="274" y1="65" y2="65" stroke="#e4ece5"/>'+poly+v.map((p,j)=>p.pct===null?'':'<circle cx="'+(12+j*86)+'" cy="'+(65-p.pct*.55)+'" r="5.5" fill="'+pointColor[j]+'" stroke="white" stroke-width="1.5"/>').join('')+'</svg><div class="tema-reg-periodos">'+v.map((p,j)=>'<button type="button" data-r="'+i+'" data-p="'+j+'" '+(p.pct===null?'disabled':'')+'><span style="background:'+C[j]+'"></span>'+P[j]+'<b>'+(p.pct===null?'—':Math.round(p.pct)+'%')+'</b><small>N='+p.base+'</small></button>').join('')+'</div></article>';
+ }).join('')+'</div><p class="tema-viz-nota">Clique em um período para consultar os colaboradores com dor naquela região. Mudanças em pontos percentuais não são necessariamente mudanças individuais.</p>';
+ panel.querySelectorAll('.tema-reg-periodos button').forEach(b=>b.addEventListener('click',()=>{const i=Number(b.dataset.r),j=Number(b.dataset.p);details(P[j]+' · dor em '+names[i],values[i][j].people)}));
+ note('evRegNota',valid.map((r,i)=>P[i]+': '+r.length+' respondentes com dor').join(' • '));
+}
+
 function layout(){
 const dash=document.getElementById('dashboardView');if(!dash||document.getElementById('temaGrupos'))return;
 const root=document.createElement('div');root.id='temaGrupos';root.innerHTML=[['Dor','Dor e impacto funcional'],['Saude','Saúde e percepção'],['Queixas','Distribuição das queixas'],['Demandas','Demandas e acompanhamento']].map(([id,title],i)=>'<div class="tema-grupo"><h2>0'+(i+1)+' · '+title+'</h2><div class="tema-grid" id="tema'+id+'"></div></div>').join('');
@@ -108,8 +143,8 @@ stack('evolucaoEstresseChart',periods,r=>r.stress,['Muito baixo','Baixo','Modera
 lines('evolucaoInterferenciaChart',periods,r=>r.interference,['Nunca','Às vezes','Frequentemente','Sempre'],['#187900','#8ED46A','#FF9A36','#F04438'],'evolucaoInterferenciaCobertura');status('evolucaoInterferenciaStatus',periods,r=>r.interference,-1);
 lines('evGLChart',periods,r=>r.gl,['Sim','Não muito','Não'],['#187900','#FF8200','#E54836'],'evGLCobertura',1);
 const latest=[3,2,1].find(i=>eligible(periods[i],r=>r.gl).length);const glCards=document.getElementById('evGLCards');if(glCards)glCards.innerHTML=latest?['Sim','Não muito','Não'].map((l,k)=>'<div class="ev-gl-card"><span class="numero">'+periods[latest].filter(r=>r.gl===k).length+'</span><span class="rotulo">'+P[latest]+' · '+l+'</span></div>').join(''):'';
-const regionRows=periods.map(r=>r.filter(x=>x.pain));horizontal('evRegChart',regionRows,r=>r.regions,'evRegNota',true);
-const sectorRows=periods.map(r=>r.filter(x=>x.setor));horizontal('setorChart',sectorRows,r=>r.pain?[r.setor]:[],'',true,(r,l)=>r.filter(x=>x.setor===l).length);
+cartoesRegioes(periods);
+mapaSetores(periods);
 const sec=document.getElementById('setorChart')?.closest('.section');if(sec){const h=sec.querySelector('h3');if(h)h.textContent='Evolução da dor por setor';const hint=sec.querySelector('.click-hint');if(hint)hint.textContent='Percentual com dor dentro de cada setor, por período. Clique para consultar nomes.'}
 const reasons=periods.map(r=>r.filter(x=>x.reason));horizontal('motivosEstresseSectionChart',reasons,r=>[r.reason],'',false);const reasonChart=Chart.getChart(document.getElementById('motivosEstresseSectionChart'));if(reasonChart){reasonChart.data.datasets=reasonChart.data.datasets.filter((d,i)=>reasons[i].length>0);reasonChart.update('none')}const reasonSection=document.getElementById('motivosEstresseSection');if(reasonSection){const p=reasonSection.querySelector('.third-content p');if(p)p.textContent='Somente períodos em que houve respostas válidas. Campos vazios não significam ausência de estresse.'}
 stack('interesseAtendimentoSectionChart',periods,r=>r.interest,['Sim','Não'],['#17FA03','#FF8200'],'');
