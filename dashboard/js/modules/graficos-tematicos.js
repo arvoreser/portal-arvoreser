@@ -65,10 +65,18 @@ height(id,Math.max(320,labels.length*70+90));note(footer,periods.map((r,i)=>P[i]
 function substituirGrafico(id){
  const canvas=document.getElementById(id);if(!canvas)return null;
  const old=Chart.getChart(canvas);if(old)old.destroy();
- canvas.style.display='none';
  const parent=canvas.parentElement;if(!parent)return null;
- parent.style.height='auto';parent.style.minHeight='0';
- let panel=parent.querySelector('.tema-viz');if(!panel){panel=document.createElement('div');panel.className='tema-viz';parent.appendChild(panel)}
+ // Retirar o canvas antigo do DOM: escondê-lo apenas deixava dimensões
+ // e estilos legados ativos, provocando sobreposição dos gráficos.
+ canvas.remove();
+ parent.classList.add('tema-viz-container');
+ parent.style.setProperty('height','auto','important');
+ parent.style.setProperty('min-height','0','important');
+ parent.style.setProperty('max-height','none','important');
+ parent.style.setProperty('position','relative','important');
+ parent.style.setProperty('overflow','visible','important');
+ let panel=parent.querySelector('.tema-viz');
+ if(!panel){panel=document.createElement('div');panel.className='tema-viz';parent.appendChild(panel)}
  return panel;
 }
 function mapaSetores(periods){
