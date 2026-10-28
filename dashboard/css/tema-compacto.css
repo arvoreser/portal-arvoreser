@@ -66,3 +66,17 @@
 #temaGrupos .tema-reg-spark{max-height:90px;overflow:visible}
 #temaGrupos .tema-faixa{clear:both;overflow:visible}
 #temaGrupos .tema-faixa-grid>.section{height:auto!important;max-height:none!important;overflow:visible!important}
+
+
+/* Resumo inicial: somente meses 2 e 3, histórico completo no mouse/foco. */
+#temaGrupos .tema-faixa-titulo{display:none!important}
+.tema-resumo-hover{position:relative;display:inline-flex;align-items:center;cursor:help;outline-offset:5px}
+.tema-resumo-values{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;font-weight:800}
+.tema-resumo-sep{color:#a4acb6;font-weight:600}
+.tema-resumo-tooltip{display:none;position:absolute;z-index:9999;top:calc(100% + 10px);left:50%;transform:translateX(-50%);width:190px;box-sizing:border-box;background:#173923;color:white;border-radius:12px;padding:12px 14px;box-shadow:0 12px 30px #0003;font-size:12px;font-weight:400;text-align:left;pointer-events:none}
+.tema-resumo-tooltip:before{content:'';position:absolute;top:-6px;left:calc(50% - 6px);width:12px;height:12px;transform:rotate(45deg);background:#173923}
+.tema-resumo-hover:hover .tema-resumo-tooltip,.tema-resumo-hover:focus .tema-resumo-tooltip,.tema-resumo-hover:focus-within .tema-resumo-tooltip{display:block}
+.tema-resumo-tooltip-title{display:block;font-size:11px;font-weight:750;margin-bottom:8px;color:#e5f7e3}
+.tema-resumo-tooltip-row{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:4px 0;border-top:1px solid #ffffff1c}
+.tema-resumo-tooltip-row strong{font-size:14px;color:white}
+@media(max-width:600px){.tema-resumo-tooltip{left:auto;right:0;transform:none}.tema-resumo-tooltip:before{left:auto;right:20px}}
