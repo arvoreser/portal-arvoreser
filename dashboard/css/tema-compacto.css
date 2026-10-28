@@ -80,3 +80,11 @@
 .tema-resumo-tooltip-row{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:4px 0;border-top:1px solid #ffffff1c}
 .tema-resumo-tooltip-row strong{font-size:14px;color:white}
 @media(max-width:600px){.tema-resumo-tooltip{left:auto;right:0;transform:none}.tema-resumo-tooltip:before{left:auto;right:20px}}
+
+/* Ocultar definitivamente as faixas de contagem de respostas válidas. */
+#temaGrupos [id$="Cobertura"],
+#temaGrupos .evolucao-sono-cobertura,
+#temaGrupos .evolucao-estresse-cobertura,
+#temaGrupos .evolucao-interferencia-cobertura,
+#temaGrupos .ev-gl-cobertura,
+#temaGrupos .evolucao-dor-cobertura{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important}
