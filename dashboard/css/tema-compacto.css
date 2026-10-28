@@ -1,0 +1,13 @@
+#temaGrupos .tema-grid{display:block!important;columns:2;column-gap:16px}
+#temaGrupos .tema-grid>.section{display:inline-block!important;width:100%!important;box-sizing:border-box;vertical-align:top;break-inside:avoid;margin:0 0 16px!important;padding:16px!important}
+#temaGrupos{gap:16px!important;margin-top:14px!important}
+#temaGrupos .tema-grupo{padding-top:12px!important}
+#temaGrupos .tema-grupo>h2{margin-bottom:12px!important}
+#temaGrupos .evolucao-dor-chartbox,#temaGrupos .evolucao-sono-chartbox,#temaGrupos .evolucao-estresse-chartbox,#temaGrupos .evolucao-interferencia-chartbox,#temaGrupos .ev-gl-chartbox{height:255px!important}
+#temaGrupos .ev-reg-chartbox,#temaGrupos .chartbox{height:340px!important}
+#temaGrupos .evolucao-dor-metricas{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+#temaGrupos .evolucao-dor-metrica{padding:9px!important}
+#temaGrupos .evolucao-dor-metrica .v{font-size:20px!important}
+#temaGrupos .tema-status{padding:8px!important}
+#temaGrupos .tema-status strong{font-size:19px!important}
+@media(max-width:900px){#temaGrupos .tema-grid{columns:1}#temaGrupos .evolucao-dor-metricas{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
