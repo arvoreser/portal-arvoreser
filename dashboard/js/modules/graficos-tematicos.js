@@ -1,6 +1,6 @@
 // Painel temático: nove gráficos, quatro avaliações, sem alterar fichas individuais.
 (function(){
-const P=['Inicial','1º mês','2º mês','3º mês'],C=['#FF4604','#17FA03','#0057FF','#A100FF'];
+const P=['Inicial','1º mês','2º mês','3º mês','4º mês'],C=['#FF4604','#17FA03','#0057FF','#A100FF','#FF8200'];
 const str=v=>String(v??'').trim(),norm=v=>str(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const yes=v=>norm(v)==='sim'||norm(v).startsWith('sim ');
 const score=v=>{const s=str(v).replace(',','.');if(!/^\d+(\.\d+)?$/.test(s))return null;const n=Number(s);return n>=0&&n<=10?n:null};
@@ -14,7 +14,7 @@ const escape=v=>typeof window.esc==='function'?window.esc(v):str(v).replace(/[&<
 function data(){
 const a=(DATA.records||[]).filter(r=>str(r.id)).map(r=>({id:str(r.id),nome:str(r.nome),setor:str(r.setor),pain:str(r.tem_dor)?yes(r.tem_dor):null,score:score(r.nota_dor),sleep:sleep(r.sono),stress:stress(r.estresse),interference:interference(r.interfere),regions:regions(r.regiao)}));
 const periods=[a];
-for(let i=1;i<=3;i++){const map=new Map();(DATA['reavaliacao'+i+'MesRows']||[]).forEach(r=>{if(str(r.ID))map.set(str(r.ID),r)});
+for(let i=1;i<=4;i++){const map=new Map();(DATA['reavaliacao'+i+'MesRows']||[]).forEach(r=>{if(str(r.ID))map.set(str(r.ID),r)});
 periods.push([...map.values()].map(r=>({id:str(r.ID),nome:str(r['Nome completo']),setor:str(r.Setor),pain:str(r['Resposta original sobre dor'])?yes(r['Resposta original sobre dor']):null,score:score(r['Nota da dor']),sleep:sleep(r.Sono),stress:stress(r.Estresse),interference:interference(r['Interfere no trabalho?']),regions:regions(r['Região da dor']),gl:gl(r['Exercicio de GL melhorou suas dores?']),reason:str(r['Motivo do Estresse']),interest:category(r['Você gostaria de ser atendido?'],{'sim':0,'nao':1})})))}
 return periods;
 }
@@ -34,7 +34,7 @@ function note(id,t){const el=document.getElementById(id);if(!el)return;if(/Cober
 function coverage(periods,fn){return periods.map((r,i)=>P[i]+': '+eligible(r,fn).length+' respostas válidas').join(' • ')}
 function status(id,periods,fn,better){
 const el=document.getElementById(id);if(!el)return;let latest=-1,prior=-1;
-for(let i=3;i>=0;i--){if(eligible(periods[i],fn).length){if(latest<0)latest=i;else{prior=i;break}}}
+for(let i=P.length-1;i>=0;i--){if(eligible(periods[i],fn).length){if(latest<0)latest=i;else{prior=i;break}}}
 if(prior<0){el.innerHTML='';return}
 const previous=new Map(eligible(periods[prior],fn).map(r=>[r.id,fn(r)]));
 const pairs=eligible(periods[latest],fn).filter(r=>previous.has(r.id));
@@ -45,19 +45,19 @@ note(id.replace('Status','Nota'),pairs.length+' pessoas com respostas pareadas: 
 }
 function stack(id,periods,fn,categories,colors,footer){
 const groups=periods.map(r=>eligible(r,fn));
-const datasets=categories.map((label,k)=>({label,data:groups.map(r=>r.length?100*r.filter(x=>fn(x)===k).length/r.length:0),backgroundColor:colors[k],stack:'total',counts:groups.map(r=>r.filter(x=>fn(x)===k).length)}));
+const datasets=categories.map((label,k)=>({label,data:groups.map(r=>r.length?100*r.filter(x=>fn(x)===k).length/r.length:null),backgroundColor:colors[k],stack:'total',counts:groups.map(r=>r.filter(x=>fn(x)===k).length)}));
 draw(id,'bar',P,datasets,{indexAxis:'y',scales:{x:{stacked:true,min:0,max:100,ticks:{callback:v=>v+'%'}},y:{stacked:true,grid:{display:false}}},plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.dataset.counts[c.dataIndex]+' ('+c.parsed.x.toFixed(1)+'%)'}}}},x=>details(P[x.index]+' • '+categories[x.datasetIndex],groups[x.index].filter(r=>fn(r)===x.datasetIndex)));
 height(id,240);note(footer,coverage(periods,fn));
 }
 function lines(id,periods,fn,categories,colors,footer,start=0){
-const indices=[0,1,2,3].filter(i=>i>=start),groups=indices.map(i=>eligible(periods[i],fn));
+const indices=P.map((_,i)=>i).filter(i=>i>=start),groups=indices.map(i=>eligible(periods[i],fn));
 const datasets=categories.map((label,k)=>({label,data:groups.map(r=>r.length?100*r.filter(x=>fn(x)===k).length/r.length:null),borderColor:colors[k],backgroundColor:colors[k],borderWidth:3,pointRadius:5,tension:.25,spanGaps:false}));
 draw(id,'line',indices.map(i=>P[i]),datasets,{scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%'}},x:{grid:{display:false}}},plugins:{tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y.toFixed(1)+'%'}}}},x=>details(P[indices[x.index]]+' • '+categories[x.datasetIndex],groups[x.index].filter(r=>fn(r)===x.datasetIndex)));
 height(id,300);note(footer,indices.map((i,k)=>P[i]+': '+groups[k].length+' respostas válidas').join(' • '));
 }
 function horizontal(id,periods,extract,footer,percent=true,denominator){
 const labels=[...new Set(periods.flatMap(rows=>rows.flatMap(extract)))].filter(Boolean).sort((a,b)=>a.localeCompare(b,'pt-BR'));
-const datasets=P.map((p,i)=>({label:p,data:labels.map(l=>{const n=periods[i].filter(r=>extract(r).includes(l)).length;const d=denominator?denominator(periods[i],l):periods[i].length;return percent?(d?100*n/d:0):n}),backgroundColor:C[i],borderRadius:4,categoryPercentage:.8}));
+const datasets=P.map((p,i)=>({label:p,data:labels.map(l=>{const n=periods[i].filter(r=>extract(r).includes(l)).length;const d=denominator?denominator(periods[i],l):periods[i].length;return percent?(d?100*n/d:null):(d?n:null)}),backgroundColor:C[i],borderRadius:4,categoryPercentage:.8}));
 draw(id,'bar',labels,datasets,{indexAxis:'y',scales:{x:{beginAtZero:true,max:percent?100:undefined,ticks:{callback:v=>percent?v+'%':v}},y:{grid:{display:false}}},plugins:{tooltip:{callbacks:{label:c=>{const i=c.datasetIndex,l=labels[c.dataIndex],n=periods[i].filter(r=>extract(r).includes(l)).length;return P[i]+': '+n+' ('+c.parsed.x.toFixed(percent?1:0)+(percent?'%':'')+')'}}}}},x=>details(P[x.datasetIndex]+' • '+labels[x.index],periods[x.datasetIndex].filter(r=>extract(r).includes(labels[x.index]))));
 height(id,Math.max(320,labels.length*70+90));note(footer,periods.map((r,i)=>P[i]+': '+r.length+' respondentes').join(' • '));
 }
@@ -93,12 +93,12 @@ function cartoesRegioes(periods){
  const names=[...new Set(valid.flatMap(rows=>rows.flatMap(r=>r.regions)))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
  const values=names.map(name=>valid.map(rows=>{const people=rows.filter(r=>r.regions.includes(name));return {n:people.length,base:rows.length,pct:rows.length?100*people.length/rows.length:null,people}}));
  const pointColor=C;
- panel.innerHTML='<p class="tema-viz-descricao">Cada cartão acompanha uma região corporal nas quatro avaliações. Os percentuais consideram os respondentes que relataram dor.</p><div class="tema-reg-grid">'+names.map((name,i)=>{
- const v=values[i],known=v.map((p,j)=>p.pct===null?null:{x:12+j*86,y:65-p.pct*.55}).filter(Boolean);
+ panel.innerHTML='<p class="tema-viz-descricao">Cada cartão acompanha uma região corporal nas cinco avaliações. Os percentuais consideram os respondentes que relataram dor.</p><div class="tema-reg-grid">'+names.map((name,i)=>{
+ const v=values[i],known=v.map((p,j)=>p.pct===null?null:{x:12+j*65,y:65-p.pct*.55}).filter(Boolean);
  const poly=known.length>1?'<polyline points="'+known.map(p=>p.x+','+p.y).join(' ')+'" fill="none" stroke="#187900" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>':'';
- const last=[3,2,1,0].find(j=>v[j].pct!==null),first=[0,1,2,3].find(j=>v[j].pct!==null);
+ const last=P.map((_,i)=>i).reverse().find(j=>v[j].pct!==null),first=P.map((_,i)=>i).find(j=>v[j].pct!==null);
  const delta=last!==undefined&&first!==undefined?v[last].pct-v[first].pct:null;
- return '<article class="tema-reg-card"><div class="tema-reg-top"><strong>'+escape(name)+'</strong><span class="tema-reg-current">'+(last===undefined?'Sem dados':Math.round(v[last].pct)+'%')+'</span></div><div class="tema-reg-meta">'+(delta===null?'Sem comparação':(delta>0?'+':'')+delta.toFixed(1).replace('.',',')+' p.p. · '+P[first]+' a '+P[last])+'</div><svg viewBox="0 0 286 80" class="tema-reg-spark" aria-label="Evolução de '+escape(name)+'"><line x1="8" x2="274" y1="65" y2="65" stroke="#e4ece5"/>'+poly+v.map((p,j)=>p.pct===null?'':'<circle cx="'+(12+j*86)+'" cy="'+(65-p.pct*.55)+'" r="5.5" fill="'+pointColor[j]+'" stroke="white" stroke-width="1.5"/>').join('')+'</svg><div class="tema-reg-periodos">'+v.map((p,j)=>'<button type="button" data-r="'+i+'" data-p="'+j+'" '+(p.pct===null?'disabled':'')+'><span style="background:'+C[j]+'"></span>'+P[j]+'<b>'+(p.pct===null?'—':Math.round(p.pct)+'%')+'</b><small>N='+p.base+'</small></button>').join('')+'</div></article>';
+ return '<article class="tema-reg-card"><div class="tema-reg-top"><strong>'+escape(name)+'</strong><span class="tema-reg-current">'+(last===undefined?'Sem dados':Math.round(v[last].pct)+'%')+'</span></div><div class="tema-reg-meta">'+(delta===null?'Sem comparação':(delta>0?'+':'')+delta.toFixed(1).replace('.',',')+' p.p. · '+P[first]+' a '+P[last])+'</div><svg viewBox="0 0 286 80" class="tema-reg-spark" aria-label="Evolução de '+escape(name)+'"><line x1="8" x2="274" y1="65" y2="65" stroke="#e4ece5"/>'+poly+v.map((p,j)=>p.pct===null?'':'<circle cx="'+(12+j*65)+'" cy="'+(65-p.pct*.55)+'" r="5.5" fill="'+pointColor[j]+'" stroke="white" stroke-width="1.5"/>').join('')+'</svg><div class="tema-reg-periodos">'+v.map((p,j)=>'<button type="button" data-r="'+i+'" data-p="'+j+'" '+(p.pct===null?'disabled':'')+'><span style="background:'+C[j]+'"></span>'+P[j]+'<b>'+(p.pct===null?'—':Math.round(p.pct)+'%')+'</b><small>N='+p.base+'</small></button>').join('')+'</div></article>';
  }).join('')+'</div><p class="tema-viz-nota">Clique em um período para consultar os colaboradores com dor naquela região. Mudanças em pontos percentuais não são necessariamente mudanças individuais.</p>';
  panel.querySelectorAll('.tema-reg-periodos button').forEach(b=>b.addEventListener('click',()=>{const i=Number(b.dataset.r),j=Number(b.dataset.p);details(P[j]+' · dor em '+names[i],values[i][j].people)}));
  note('evRegNota',valid.map((r,i)=>P[i]+': '+r.length+' respondentes com dor').join(' • '));
@@ -146,14 +146,18 @@ function resumoDoisUltimosMeses(){
   const spans=[...el.querySelectorAll('span[title],span[data-third-month]')];
   const vals=spans.map(x=>str(x.textContent));
   if(vals.length<4)return;
+  vals[4]=el.dataset.mes4Valor||'—';
   const rows=P.map((p,i)=>'<div class="tema-resumo-tooltip-row"><span style="color:'+C[i]+'">'+escape(p)+'</span><strong>'+escape(vals[i])+'</strong></div>').join('');
   el.dataset.resumoCompacto='true';
-  el.innerHTML='<span class="tema-resumo-hover" tabindex="0" aria-label="2º mês: '+escape(vals[2])+'. 3º mês: '+escape(vals[3])+'. Passe o mouse ou selecione para ver as quatro avaliações."><span class="tema-resumo-values"><span style="color:'+C[2]+'">'+escape(vals[2])+'</span><span class="tema-resumo-sep">/</span><span style="color:'+C[3]+'">'+escape(vals[3])+'</span></span><span class="tema-resumo-tooltip" role="tooltip"><span class="tema-resumo-tooltip-title">Histórico completo</span>'+rows+'</span></span>';
+  el.innerHTML='<span class="tema-resumo-hover" tabindex="0" aria-label="2º mês: '+escape(vals[3])+'. 4º mês: '+escape(vals[4])+'. Passe o mouse ou selecione para ver as cinco avaliações."><span class="tema-resumo-values"><span style="color:'+C[3]+'">'+escape(vals[3])+'</span><span class="tema-resumo-sep">/</span><span style="color:'+C[4]+'">'+escape(vals[4])+'</span></span><span class="tema-resumo-tooltip" role="tooltip"><span class="tema-resumo-tooltip-title">Histórico completo</span>'+rows+'</span></span>';
  });
 }
 
 window.renderGraficosTematicos=function(){
 const periods=data();layout();
+const r4=periods[4]||[];const valid4=r4.filter(r=>r.score!==null),sint4=r4.filter(r=>r.pain===true),sintScore4=sint4.filter(r=>r.score!==null&&r.score>0);
+const metricas4={comDorMetric:r4.some(r=>r.pain!==null)?String(sint4.length):'—',mediaDorMetric:sintScore4.length?(sintScore4.reduce((s,r)=>s+r.score,0)/sintScore4.length).toFixed(1).replace('.',','):'—',prioritariosMetric:valid4.length?String(valid4.filter(r=>r.score>=7).length):'—'};
+Object.entries(metricas4).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.dataset.mes4Valor=value});
 const mean=periods.map(r=>{const a=eligible(r,x=>x.score);return a.length?a.reduce((s,x)=>s+x.score,0)/a.length:null});
 draw('evolucaoDorChart','line',P,[{label:'Média da dor',data:mean,borderColor:'#187900',pointBackgroundColor:C,pointBorderColor:C,pointRadius:7,borderWidth:3,tension:.25,spanGaps:false}],{scales:{y:{min:0,max:10},x:{grid:{display:false}}},plugins:{legend:{display:false}}},x=>details(P[x.index]+' • notas de dor válidas',eligible(periods[x.index],r=>r.score)));
 height('evolucaoDorChart',300);
@@ -163,12 +167,12 @@ stack('evolucaoSonoChart',periods,r=>r.sleep,['Muito ruim','Ruim','Regular','Boa
 stack('evolucaoEstresseChart',periods,r=>r.stress,['Muito baixo','Baixo','Moderado','Alto','Muito alto'],['#187900','#63C56C','#F1CB54','#FF8200','#E54836'],'evolucaoEstresseCobertura');status('evolucaoEstresseStatus',periods,r=>r.stress,-1);
 lines('evolucaoInterferenciaChart',periods,r=>r.interference,['Nunca','Às vezes','Frequentemente','Sempre'],['#187900','#8ED46A','#FF9A36','#F04438'],'evolucaoInterferenciaCobertura');status('evolucaoInterferenciaStatus',periods,r=>r.interference,-1);
 lines('evGLChart',periods,r=>r.gl,['Sim','Não muito','Não'],['#187900','#FF8200','#E54836'],'evGLCobertura',1);
-const latest=[3,2,1].find(i=>eligible(periods[i],r=>r.gl).length);const glCards=document.getElementById('evGLCards');if(glCards)glCards.innerHTML=latest?['Sim','Não muito','Não'].map((l,k)=>'<div class="ev-gl-card"><span class="numero">'+periods[latest].filter(r=>r.gl===k).length+'</span><span class="rotulo">'+P[latest]+' · '+l+'</span></div>').join(''):'';
+const latest=[4,3,2,1].find(i=>eligible(periods[i],r=>r.gl).length);const glCards=document.getElementById('evGLCards');if(glCards)glCards.innerHTML=latest?['Sim','Não muito','Não'].map((l,k)=>'<div class="ev-gl-card"><span class="numero">'+periods[latest].filter(r=>r.gl===k).length+'</span><span class="rotulo">'+P[latest]+' · '+l+'</span></div>').join(''):'';
 cartoesRegioes(periods);
 mapaSetores(periods);
 const sec=document.getElementById('setorChart')?.closest('.section');if(sec){const h=sec.querySelector('h3');if(h)h.textContent='Evolução da dor por setor';const hint=sec.querySelector('.click-hint');if(hint)hint.textContent='Percentual com dor dentro de cada setor, por período. Clique para consultar nomes.'}
 const reasons=periods.map(rows=>rows.filter(r=>r.reason));
-const reasonPeriods=[0,1,2,3].filter(i=>reasons[i].length>0);
+const reasonPeriods=P.map((_,i)=>i).filter(i=>reasons[i].length>0);
 const reasonLabels=[...new Set(reasonPeriods.flatMap(i=>reasons[i].map(r=>r.reason)))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
 const reasonDatasets=reasonPeriods.map(i=>({
  label:P[i],periodIndex:i,backgroundColor:C[i],borderRadius:4,categoryPercentage:.75,
@@ -184,9 +188,9 @@ draw('motivosEstresseSectionChart','bar',reasonLabels,reasonDatasets,{
 });
 height('motivosEstresseSectionChart',Math.max(300,reasonLabels.length*55+90));const reasonSection=document.getElementById('motivosEstresseSection');if(reasonSection){const p=reasonSection.querySelector('.third-content p');if(p)p.textContent='Somente períodos em que houve respostas válidas. Campos vazios não significam ausência de estresse.'}
 stack('interesseAtendimentoSectionChart',periods,r=>r.interest,['Sim','Não'],['#17FA03','#FF8200'],'');
-const interest=periods.map(r=>eligible(r,x=>x.interest)),last=[3,2,1].find(i=>interest[i].length);
+const interest=periods.map(r=>eligible(r,x=>x.interest)),last=[4,3,2,1].find(i=>interest[i].length);
 const area=document.getElementById('interesseAtendimentoSection');if(area){let badge=area.querySelector('.tema-interesse');if(!badge){badge=document.createElement('p');badge.className='tema-interesse';area.querySelector('h3')?.after(badge)}badge.textContent=last?'Último período com respostas: '+P[last]+' · '+interest[last].filter(r=>r.interest===0).length+' interessados entre '+interest[last].length+' respostas válidas.':'Sem respostas válidas.'}
-document.querySelectorAll('.evolucao-dor-sub,.evolucao-sono-sub,.evolucao-estresse-sub,.evolucao-interferencia-sub,.ev-gl-sub,.ev-reg-sub').forEach(el=>el.textContent='Comparação entre avaliações disponíveis, incluindo o 3º mês.');
+document.querySelectorAll('.evolucao-dor-sub,.evolucao-sono-sub,.evolucao-estresse-sub,.evolucao-interferencia-sub,.ev-gl-sub,.ev-reg-sub').forEach(el=>el.textContent='Comparação entre avaliações disponíveis, incluindo o 4º mês quando houver respostas.');
 organizarCartoes();
 document.querySelectorAll('[id$="Cobertura"]').forEach(el=>{el.textContent='';el.style.display='none'});
 resumoDoisUltimosMeses();
