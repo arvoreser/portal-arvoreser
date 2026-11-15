@@ -36,12 +36,33 @@ function status(id,periods,fn,better){
 const el=document.getElementById(id);if(!el)return;let latest=-1,prior=-1;
 for(let i=P.length-1;i>=0;i--){if(eligible(periods[i],fn).length){if(latest<0)latest=i;else{prior=i;break}}}
 if(prior<0){el.innerHTML='';return}
-const previous=new Map(eligible(periods[prior],fn).map(r=>[r.id,fn(r)]));
+const previous=new Map(eligible(periods[prior],fn).map(r=>[r.id,r]));
 const pairs=eligible(periods[latest],fn).filter(r=>previous.has(r.id));
-const good=pairs.filter(r=>better*(fn(r)-previous.get(r.id))>0).length;
-const bad=pairs.filter(r=>better*(fn(r)-previous.get(r.id))<0).length;
-el.innerHTML=[['Melhoraram',good],['Mantiveram',pairs.length-good-bad],['Pioraram',bad]].map(([l,n])=>'<div class="tema-status"><strong>'+n+'</strong><span>'+l+'</span></div>').join('');
-note(id.replace('Status','Nota'),pairs.length+' pessoas com respostas pareadas: '+P[prior]+' × '+P[latest]+'.');
+const categories=[
+ {label:'Melhoraram',items:pairs.filter(r=>better*(fn(r)-fn(previous.get(r.id)))>0)},
+ {label:'Mantiveram',items:pairs.filter(r=>better*(fn(r)-fn(previous.get(r.id)))===0)},
+ {label:'Pioraram',items:pairs.filter(r=>better*(fn(r)-fn(previous.get(r.id)))<0)}
+];
+const title=P[prior]+' × '+P[latest];
+el.innerHTML=categories.map((cat,i)=>{
+ const people=cat.items.slice().sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
+ const rows=people.map(r=>'<li><span>'+escape(r.nome||'Sem nome')+'</span><small>'+escape(fn(previous.get(r.id)))+' → '+escape(fn(r))+'</small></li>').join('');
+ return '<div class="tema-status tema-status-hover" tabindex="0" role="button" aria-label="'+escape(cat.label)+': '+people.length+' colaboradores, '+escape(title)+'"><strong>'+people.length+'</strong><span>'+cat.label+'</span><div class="tema-status-popover"><b>'+escape(cat.label)+' · '+escape(title)+'</b>'+(rows?'<ul>'+rows+'</ul>':'<p>Nenhum colaborador nesta categoria.</p>')+'</div></div>';
+}).join('');
+el.querySelectorAll('.tema-status-hover').forEach((card,i)=>{card.addEventListener('click',()=>details(categories[i].label+' · '+title,categories[i].items));card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();card.click()}})});
+if(!document.getElementById('temaStatusHoverCss')){const style=document.createElement('style');style.id='temaStatusHoverCss';style.textContent=`
+.tema-status-hover{position:relative;cursor:pointer}
+.tema-status-hover:focus-visible{outline:2px solid #187900;outline-offset:2px}
+.tema-status-popover{display:none;position:absolute;bottom:calc(100% + 7px);left:0;z-index:60;min-width:245px;max-width:min(340px,75vw);max-height:320px;overflow-y:auto;background:#fff;color:#23352b;border:1px solid #cbdcc9;box-shadow:0 10px 30px #163b2030;border-radius:10px;padding:12px;text-align:left;font-size:12px;font-weight:400}
+.tema-status-hover:hover .tema-status-popover,.tema-status-hover:focus .tema-status-popover{display:block}
+.tema-status-popover b{display:block;margin-bottom:8px;color:#064001;font-size:12px}
+.tema-status-popover ul{list-style:none;margin:0;padding:0}
+.tema-status-popover li{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid #edf2ec}
+.tema-status-popover li span{overflow-wrap:anywhere}
+.tema-status-popover li small{white-space:nowrap;color:#617267;font-size:11px}
+.tema-status-popover p{margin:0;color:#617267}
+`;document.head.appendChild(style)}
+note(id.replace('Status','Nota'),pairs.length+' pessoas com respostas pareadas: '+title+'.');
 }
 function stack(id,periods,fn,categories,colors,footer){
 const groups=periods.map(r=>eligible(r,fn));
